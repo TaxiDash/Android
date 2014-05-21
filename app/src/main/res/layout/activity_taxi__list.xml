@@ -1,0 +1,49 @@
+<FrameLayout
+    android:id="@+id/containerq"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bootstrapbutton="http://schemas.android.com/apk/res-auto"
+    xmlns:fontawesometext="http://schemas.android.com/apk/res-auto"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/base_list"
+        android:layout_gravity="left|top">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/taxi_list_header"
+        android:src="@drawable/taxi_list_header"
+        android:layout_gravity="center_horizontal" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/taxi_list"
+        android:layout_gravity="left|top">
+        <!--
+        <com.fima.cardsui.views.CardUI
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/taxi_card_list"
+            >
+        -->
+
+        <!--
+            </com.fima.cardsui.views.CardUI>
+            -->
+
+        <!-- Add the nearby taxis here -->
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

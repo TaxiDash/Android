@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+    android:id="@+id/profile_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/taxi_list_header"
+                android:src="@drawable/taxi_list_header"
+                android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/taxi_list_header"
+        android:layout_marginLeft="10dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/defaultDriverName"
+        android:id="@+id/name"
+        android:layout_gravity="left|bottom" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/name"
+        android:layout_marginLeft="10dp"
+        android:text="@string/defaultCompanyName"
+        android:id="@+id/company_name"
+        android:layout_gravity="left|bottom" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/taxi_list_header"
+        android:layout_toRightOf="@+id/name"
+        android:layout_marginRight="10dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/defaultRating"
+        android:id="@+id/driverRating"
+        android:gravity="right" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ratingLabel"
+        android:layout_below="@+id/driverRating"
+        android:layout_toRightOf="@+id/company_name"
+        android:id="@+id/textView3"
+        android:gravity="right|bottom" />
+
+        <com.beardedhen.androidbootstrap.BootstrapButton
+            xmlns:bootstrapbutton="http://schemas.android.com/apk/res-auto"
+            bootstrapbutton:bb_icon_right="fa-android"
+            bootstrapbutton:bb_roundedCorners="true"
+            bootstrapbutton:bb_type="primary"
+            bootstrapbutton:bb_text_gravity="center"
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"
+            android:textSize="40sp"
+            android:text="@string/selectDriverLabel"
+            android:onClick="onStartRideClicked"
+            android:layout_below="@+id/company_name"
+            />
+
+    </RelativeLayout>
+</FrameLayout>
