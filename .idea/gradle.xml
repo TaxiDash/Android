@@ -9,7 +9,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/AndroidBootstrap" />
-            <option value="$PROJECT_DIR$/CardsUI" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/iBeacon" />
           </set>

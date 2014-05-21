@@ -1,1 +1,1 @@
-include ':app', ':iBeacon', ':AndroidBootstrap', ':CardsUI'
+include ':app', ':iBeacon', ':AndroidBootstrap'

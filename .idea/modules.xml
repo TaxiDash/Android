@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AndroidBootstrap/AndroidBootstrap.iml" filepath="$PROJECT_DIR$/AndroidBootstrap/AndroidBootstrap.iml" />
-      <module fileurl="file://$PROJECT_DIR$/CardsUI/CardsUI.iml" filepath="$PROJECT_DIR$/CardsUI/CardsUI.iml" />
       <module fileurl="file://$PROJECT_DIR$/TaxiDash.iml" filepath="$PROJECT_DIR$/TaxiDash.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/iBeacon/iBeacon.iml" filepath="$PROJECT_DIR$/iBeacon/iBeacon.iml" />
