@@ -15,20 +15,16 @@ import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
-import org.apache.http.HttpVersion;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 
 public class RateDriver extends Activity {
@@ -63,7 +59,7 @@ public class RateDriver extends Activity {
     private void getRatingInfo(){
         //Populate rating info
         RatingBar ratingBar = (RatingBar) findViewById(R.id.rating);
-        rating.setRating(ratingBar.getNumStars());
+        rating.setRating((int)ratingBar.getRating());
 
         EditText comments = (EditText) findViewById(R.id.comments);
         rating.setComments(comments.getText().toString());
@@ -82,14 +78,17 @@ public class RateDriver extends Activity {
         return true;
     }
 
-    private void submitNotification(){
-        if(rating.getRating() == 5){
-            //Ask to favorite the driver
-            //TODO
+    private void submitNotification(int responseCode){
+        Log.d("RATING", "SUBMITTING NOTIFICIATION with response code " + responseCode);
+        if(responseCode == 201) {//Success
+            if(rating.getRating() == 5) {
+                //Ask to favorite the driver
+                //TODO
 
-        }else{
-            //Simply display a toast
-            Toast.makeText(getApplicationContext(), "Your rating has been submitted!", Toast.LENGTH_SHORT).show();
+            }else {
+                //Simply display a toast
+                Toast.makeText(getApplicationContext(), "Your rating has been submitted!", Toast.LENGTH_SHORT).show();
+            }
         }
 
     }
@@ -99,7 +98,7 @@ public class RateDriver extends Activity {
          * Submit rating!
          */
 
-        Log.i("SUBMIT RATING", "ABOUT TO SUBMIT RATING");
+        Log.d("SUBMIT RATING", "ABOUT TO SUBMIT RATING");
         getRatingInfo();
         new submitRating().execute();
     }
@@ -110,31 +109,24 @@ public class RateDriver extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
-        private class submitRating extends AsyncTask<Void, Void, Void> {
+        private class submitRating extends AsyncTask<Void, Void, Integer> {
 
         @Override
-        protected Void doInBackground(Void... params) {
-            //create a JSON
-            //Send a POST message to the server
-            Company[] companies = null;
-            //Get the contact info for the companies
+        protected Integer doInBackground(Void... params) {
+
             String endpoint = CONSTANTS.SERVER_ADDRESS + "/ratings.json";
+            int responseCode = -1;
 
             try {
-                HttpClient http = new DefaultHttpClient();
-                http.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
-
                 //Create rating JSON
-                //TODO
                 JSONObject jsonRating = new JSONObject();
                 jsonRating.put("driver_id", currentDriver.getId());
                 jsonRating.put("rating", rating.getRating());
+                jsonRating.put("comments", rating.getComments());
                 jsonRating.put("rider_id", USER_ID);
 
                 if(rating.isSendingRide()) {
@@ -154,31 +146,39 @@ public class RateDriver extends Activity {
                     jsonRating.put("ride", jsonRide);
                 }
 
-                HttpPost httpPost = new HttpPost(endpoint);
-                //httpPost.setHeader("Accept", "application/json");
-                //httpPost.setHeader("Content-type", "application/json");
-                StringEntity json = new StringEntity(jsonRating.toString());
-                Log.i("RATING REQ", jsonRating.toString());
+                //Submit the rating
+                URL url = new URL(endpoint);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoOutput(true);
+                connection.setRequestMethod("POST");
 
+                Log.d("JSON CONTENT", jsonRating.toString());
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("rating", jsonRating);
+                StringEntity json = new StringEntity(jsonObject.toString());
                 json.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 
-                //sets the post request as the resulting string
-                httpPost.setEntity(json);
+                connection.setRequestProperty("Content-Type", "application/json");
+                OutputStream out = connection.getOutputStream();
 
-                ResponseHandler responseHandler = new BasicResponseHandler();
-                http.execute(httpPost, responseHandler);
-                Log.i("RATING RESPONSE", responseHandler.toString());
+                try {
+                    json.writeTo(out);
+                }finally {
+                    out.close();
+                }
+
+                responseCode = connection.getResponseCode();
 
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return null;
+            return responseCode;
         }
 
-        protected void onPostExecute(Void v){
-            submitNotification();
+        protected void onPostExecute(Integer v){
+            submitNotification(v);
         }
 
             /*
