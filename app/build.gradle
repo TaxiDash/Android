@@ -24,4 +24,5 @@ dependencies {
     compile project(':AndroidBootstrap')
     compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.github.gabrielemariotti.cards:library:1.6.0'
+    compile 'com.google.android.gms:play-services:4.4.52'
 }

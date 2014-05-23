@@ -14,8 +14,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -35,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.radiusnetworks.ibeacon.IBeacon;
@@ -43,13 +42,22 @@ import com.radiusnetworks.ibeacon.IBeaconManager;
 import com.radiusnetworks.ibeacon.RangeNotifier;
 import com.radiusnetworks.ibeacon.Region;
 
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
+import it.gmariotti.cardslib.library.view.CardListView;
+
 
 public class NearbyCabList extends Activity implements IBeaconConsumer{
     //String ROUTER_ADDRESS;
+    //Caches
     Map<Integer, Driver> driverCache = new HashMap<Integer, Driver>();
     Map<String, Company> companyCache = new HashMap<String, Company>();
-    ArrayList<Driver> nearbyDrivers = new ArrayList<Driver>();
-    ArrayList<Driver> displayedDrivers = new ArrayList<Driver>();
+
+
+    Map<Integer, DriverCard> beaconId2driverCard = new HashMap<Integer, DriverCard>();
+    ArrayList<Integer> nearbyDrivers = new ArrayList<Integer>();
+    ArrayList<Integer> displayedDrivers = new ArrayList<Integer>();
+    List<Card> displayedCards = new ArrayList<Card>();
 
     //iBeacon Stuff
     String BEACON_TAG = "iBEACON MSG:";
@@ -60,24 +68,25 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
     BluetoothAdapter bAdaptor;
     private final int REQUEST_ENABLE_BT = 1;
 
-    View.OnClickListener viewDriver;
+    Card.OnCardClickListener viewDriver;
     ProgressDialog progress;
 
     public NearbyCabList() {
         final IBeaconConsumer self;
         self = this;
-        viewDriver = new View.OnClickListener() {
+        viewDriver = new Card.OnCardClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(Card c, View v) {
                 //What should happen when driver panel is pressed
                 iBM.unBind(self);
-                Driver driver = driverCache.get(v.getId());
+                Driver driver;
+                driver = ((DriverCard) c).getDriver();
 
                 Intent viewDriverIntent = new Intent(v.getContext(), DriverProfile.class);
                 viewDriverIntent.putExtra("Driver", driver);
                 startActivity(viewDriverIntent);
-                //TODO Pass an intent to Driver Profile Activity
             }
+
         };
     }
 
@@ -142,6 +151,19 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
         iBM.unBind(this);
     }
 
+    @Override
+    public void onPause(){
+        //Don't scan while suspended
+        iBM.unBind(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        iBM.bind(this);
+    }
+
     private void offerToCallCompany(String reason){
         //Ask the user if he/she wants to call a local cab company
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -202,29 +224,43 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
         }
 
         //Clear the current list
-        LinearLayout taxiList = (LinearLayout) findViewById(R.id.taxi_list);
-        Log.i("BEACON STUFF", "ABOUT TO CLEAR VIEWS!!!!!!");
-        //taxiList.removeAllViews();
-        Log.i("BEACON STUFF", "ADDING " + nearbyDrivers.size() + "!!!!!!");
-        ArrayList<Driver> nearbyDriversClone = (ArrayList<Driver>) nearbyDrivers.clone();//Snapshot of nearby drivers
+        ArrayList<Integer> nearbyDriversClone = (ArrayList<Integer>) nearbyDrivers.clone();//Snapshot of nearby drivers
 
-        for(Driver displayedDriver : displayedDrivers){
-            if(nearbyDriversClone.indexOf(displayedDriver) == -1){
-                displayedDrivers.remove(displayedDriver);
+        CardListView list = (CardListView) findViewById(R.id.taxi_list);
+
+        for(int i = displayedDrivers.size()-1; i >= 0; i--){
+            Integer displayedDriverId = displayedDrivers.get(i);
+            if(nearbyDriversClone.indexOf(displayedDriverId) != -1){//If not nearby, remove from screen
+                displayedDrivers.remove(displayedDriverId);
+                displayedCards.remove(beaconId2driverCard.get(displayedDriverId));
             }
         }
 
         Collections.sort(nearbyDriversClone);
-        for(Driver nearbyDriver : nearbyDriversClone){
-            //Create the driver's icon
-            if(displayedDrivers.indexOf(nearbyDriver) == -1){
-                createDriverPanel(this.getApplicationContext(), taxiList, nearbyDriver);
-                displayedDrivers.add(nearbyDriver);
+        Context context = this.getApplicationContext();
+        for(Integer nearbyDriverId : nearbyDriversClone){
+            //Create the driver's card
+            if(displayedDrivers.indexOf(nearbyDriverId) == -1) { //Add the driver
+                DriverCard driverCard;
+                if (CONSTANTS.DEMO_MODE) {
+                    driverCard = new DriverCard(context);
+                } else {
+                    driverCard = new DriverCard(context, driverCache.get(nearbyDriverId));
+                }
+
+                driverCard.setClickListener(viewDriver);
+                //Adding the driver
+                displayedDrivers.add(nearbyDriverId);
+                displayedCards.add(driverCard);
+                beaconId2driverCard.put(nearbyDriverId, driverCard);
             }
-            //taxiList.addCard(new PlayCard(nearbyDriver.getName(), nearbyDriver.getCompanyName(),
-                    //"#1155cc", "#cc5511", true, false));
         }
-        //nearbyDrivers.clear();
+
+
+        //TODO Find out how to remove cards from view
+        CardArrayAdapter adapter;
+        adapter = new CardArrayAdapter(context, displayedCards);
+        list.setAdapter(adapter);
     }
 
     private void askToKeepSearching(){
@@ -252,26 +288,6 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
 
     }
 
-    private void createDriverPanel(Context cxt, LinearLayout container, Driver driver){
-        LinearLayout panel = new LinearLayout(cxt);
-        panel.setId(driver.getBeaconId());
-        panel.setOnClickListener(viewDriver);
-
-        //Dress this up a little more
-        //TODO
-        /*
-        ImageView icon = new ImageView(cxt);
-        icon.setImageDrawable(driver.getImage());
-        panel.addView(icon);
-        */
-
-        TextView test = new TextView(cxt);
-        test.setText(driver.getRating() + " " + driver.getName() + " ");
-
-        panel.addView(test);
-        container.addView(panel);
-    }
-
     @Override
     public void onIBeaconServiceConnect() {
         iBM.setRangeNotifier(new RangeNotifier() {
@@ -288,7 +304,7 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                     beaconId = b.getMinor();//Make sure we are using the minor and not the major...
                     if(driverCache.containsKey(beaconId)){
                         driverCache.get(beaconId).setDistance(b.getAccuracy());
-                        nearbyDrivers.add(driverCache.get(beaconId));
+                        nearbyDrivers.add(beaconId);
                     }else{
                         beaconIds.add(b.getMinor());
                         //Request driver info from the server
@@ -310,6 +326,7 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                 }
 
                 Log.i(BEACON_TAG, "ABOUT TO REQUEST DRIVER INFO");
+
                 new getNearbyCabInfo().execute(bIds);
 
             }
@@ -345,6 +362,8 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                     driverInfo = EntityUtils.toString(entity);
                     result[i] = new JSONObject(driverInfo);
 
+                    Log.i("JSON RECEIVED: ", result[i].toString());
+
                     JSONObject company = result[i].getJSONObject("company");
                     String companyName = company.getString("name");
                     if(companyCache.get(companyName) == null){
@@ -357,10 +376,11 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                             companyName, -1, result[i].getDouble("average_rating"),
                             result[i].getBoolean("valid")));
 
-                    nearbyDrivers.add(driverCache.get(beaconId));
+                    nearbyDrivers.add(beaconId);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
+                    Log.e("NO DRIVER ERROR", "No driver with beacon id " + beaconId);
                     e.printStackTrace();
                 }
                 //Get the image for the driver

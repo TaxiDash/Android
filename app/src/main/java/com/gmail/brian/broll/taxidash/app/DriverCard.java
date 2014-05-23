@@ -3,40 +3,61 @@ package com.gmail.brian.broll.taxidash.app;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.gmail.brian.broll.taxidash.app.Driver;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
 import it.gmariotti.cardslib.library.internal.Card;
 
-/**
+/*
  * Created by Brian Broll on 5/20/14.
+ *
+ * This is the layout for a given driver card.
  */
 public class DriverCard extends Card {
-    /*
-     * This is the layout for a given driver card.
-     *
-     * TODO create the layout for the card in /layouts
-     */
     private Driver driver;
 
+    public DriverCard(Context context) {
+        super(context, R.layout.driver_card_layout);
+        this.driver = new Driver(1, 1, "Dummy Driver", "Dumb Company", 10, 2.4, true);
+        init();
+    }
+
     public DriverCard(Context context, Driver driver) {
-        super(context);
+        super(context, R.layout.driver_card_layout);
         this.driver = driver;
         init();
     }
 
+    public Driver getDriver(){
+        return this.driver;
+    }
+
     private void init(){
-        //Set the layout values given
-        //     - driver's name
-        //     - company's picture
-        //     - driver's rating (in stars)
-        //
-        //     - add click listener
+        // Add company picture
         //TODO
+    }
+
+    public void setClickListener(OnCardClickListener listener){
+        setOnClickListener(listener);
     }
 
     @Override
     public void setupInnerViewElements(ViewGroup parent, View view){
-        //TODO
+        TextView driverName = (TextView) parent.findViewById(R.id.card_driver_name);
+        TextView companyName = (TextView) parent.findViewById(R.id.card_company_name);
+        RatingBar rating = (RatingBar) parent.findViewById(R.id.card_rating);
+
+        if(driverName != null){
+            driverName.setText(this.driver.getName());
+        }
+
+        if(companyName != null){
+            companyName.setText("Distance: " + this.driver.getDistance());
+        }
+
+        if(rating != null) {
+            rating.setNumStars(CONSTANTS.MAX_RATING);
+            rating.setRating((float) this.driver.getRating());
+        }
     }
 }
