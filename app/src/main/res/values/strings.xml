@@ -22,5 +22,6 @@
     <string name="submitRatingLabel">Rate</string>
     <string name="title_activity_favorite_driver_list">FavoriteDriverList</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_fare_estimator">FareEstimator</string>
 
 </resources>

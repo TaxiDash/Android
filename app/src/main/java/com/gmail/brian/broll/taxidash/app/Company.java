@@ -1,6 +1,7 @@
 package com.gmail.brian.broll.taxidash.app;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -12,7 +13,7 @@ import java.io.File;
  */
 public class Company implements Comparable, Parcelable{
     private int id = -1;
-    private String logo = "";
+    private String logo = null;
     private String name = null;
     private double rating = -1;
     private String phoneNumber = null;
@@ -35,14 +36,16 @@ public class Company implements Comparable, Parcelable{
     public String getName(){
         return this.name;
     }
+
     public void setLogo(String filePath){
         this.logo = filePath;
     }
 
-    public Drawable getLogo(){
-        File filePath = new File(this.logo);
-        Drawable d = Drawable.createFromPath(filePath.toString());
-        return d;
+    public Bitmap getLogo(){
+        if(this.logo == null || !(new File(this.logo)).exists()) {
+            return null;
+        }
+        return BitmapFactory.decodeFile(this.logo);
     }
 
     public String getPhoneNumber(){

@@ -2,7 +2,6 @@ package com.gmail.brian.broll.taxidash.app;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -14,29 +13,27 @@ import java.io.File;
  * This class contains all the driver info for a given taxi driver.
  * The info is populated from the feedback from the server.
  *
- * A driver can also be given a phone number when he is stored
- * as a favorite driver.
- *
  * Created by Brian Broll on 5/14/14.
  */
 public class Driver implements Comparable, Parcelable{
     //private IMAGE logo
-    private String company;
-    private String image = ""; //filename (stored in cache)
     private int id = -1;
     private int beacon_id = -1;
     private String name = "NO NAME RECEIVED";
-    private double rating = -1;
+    private float rating = -1;
+    private String company;
+    private String phoneNumber;
+    protected String image = null; //filename (stored in cache)
+
     private boolean validLicense = false;
     private double distance = 100000;
 
-    private String phoneNumber = null;//Used if driver is favorited
-
-    public Driver(int id, int b, String n, String companyName, double dis, double r, boolean valid){
+    public Driver(int id, int b, String n, String companyName, float r, String number, boolean valid){
         this.id = id;
         this.beacon_id = b;
-        this.rating = r;
         this.name = n;
+        this.rating = r;
+        this.phoneNumber = number;
         this.validLicense = valid;
         this.company = companyName;
     }
@@ -65,8 +62,8 @@ public class Driver implements Comparable, Parcelable{
         return this.distance;
     }
 
-    public double getRating(){
-        return ((double) Math.round(100*this.rating))/100;
+    public float getRating(){
+        return ((float) Math.round(100*this.rating))/100;
     }
 
     public boolean hasValidLicense(){
@@ -77,26 +74,27 @@ public class Driver implements Comparable, Parcelable{
         return this.company;
     }
 
-    public void setImage(String im){
-        this.image = im;
-    }
-
-    public void setPhoneNumber(String number){
-        //We should probably make sure we only use numbers and remove
-        //any (), - and " " from number
-        //TODO
-        this.phoneNumber = number;
-    }
-
     public String getPhoneNumber(){
         return this.phoneNumber;
     }
 
-    public Drawable getImage(){
-        File filePath = new File(this.image);
-        Drawable d = Drawable.createFromPath(filePath.toString());
+    public void setImage(String im){
+        this.image = im;
+        Log.i("DRIVER", "Setting image to " + this.image);
+    }
 
+    public Bitmap getImage(){
+        if(this.image == null || !(new File(this.image)).exists()){
+            return null;
+        }
+
+        Bitmap d = BitmapFactory.decodeFile(this.image);
         return d;
+    }
+
+    public String getImageURL(){
+        Log.i("DRIVER", "Retrieving image (" + this.image + ")");
+        return this.image;
     }
 
     @Override
@@ -117,9 +115,10 @@ public class Driver implements Comparable, Parcelable{
         out.writeInt(this.beacon_id);
         out.writeString(this.name);
         out.writeString(this.company);
+        out.writeString(this.image);
+        out.writeString(this.phoneNumber);
         out.writeDouble(this.distance);
         out.writeDouble(this.rating);
-        out.writeString(this.image);
         if(this.validLicense) {
             out.writeInt(1);
         }else {
@@ -132,9 +131,10 @@ public class Driver implements Comparable, Parcelable{
         this.beacon_id = in.readInt();
         this.name = in.readString();
         this.company = in.readString();
-        this.distance = in.readDouble();
-        this.rating = in.readDouble();
         this.image = in.readString();
+        this.phoneNumber = in.readString();
+        this.distance = in.readDouble();
+        this.rating = in.readFloat();
         this.validLicense = false;
 
         int valid = in.readInt();
@@ -146,8 +146,7 @@ public class Driver implements Comparable, Parcelable{
     public static final Creator CREATOR = new Creator() {
         @Override
         public Driver createFromParcel(Parcel source) {
-            Driver driver = new Driver(source);
-            return driver;
+            return new Driver(source);
         }
 
         @Override

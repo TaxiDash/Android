@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,8 +27,12 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,10 +53,8 @@ import it.gmariotti.cardslib.library.view.CardListView;
 
 
 public class NearbyCabList extends Activity implements IBeaconConsumer{
-    //String ROUTER_ADDRESS;
-    //Caches
     Map<Integer, Driver> driverCache = new HashMap<Integer, Driver>();
-    Map<String, Company> companyCache = new HashMap<String, Company>();
+    Map<Integer, Company> companyCache = new HashMap<Integer, Company>();
 
 
     Map<Integer, DriverCard> beaconId2driverCard = new HashMap<Integer, DriverCard>();
@@ -125,7 +128,6 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_taxi__list);
 
-        //Make sure the user has bluetooth
         bAdaptor = BluetoothAdapter.getDefaultAdapter();
         if(bAdaptor == null){//bluetooth not supported on device
             //Alert the user that the app will not be able to get nearby
@@ -134,11 +136,17 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                     "will not be able to detect nearby cabs. ");
         }
 
+        startBlueTooth();
+    }
+    private void startBlueTooth(){
+        //Make sure the user has bluetooth
         if(!bAdaptor.isEnabled()){
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }else{
             iBM.bind(this);
+            //Write this to the background...
+            //TODO
             progress = new ProgressDialog(this);
             progress.setTitle("Searching...");
             progress.setMessage("Please wait while we look up info on any nearby cab drivers...");
@@ -308,7 +316,7 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                     }else{
                         beaconIds.add(b.getMinor());
                         //Request driver info from the server
-                        Log.i(BEACON_TAG, "Gonna request info for driver with beacon id: " + b.getMinor());
+                        Log.i(BEACON_TAG, "Gonna request info for driver with beacon id: " + beaconId);
                     }
                 }
                 Integer[] bIds = new Integer[beaconIds.size()];
@@ -365,15 +373,23 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                     Log.i("JSON RECEIVED: ", result[i].toString());
 
                     JSONObject company = result[i].getJSONObject("company");
-                    String companyName = company.getString("name");
-                    if(companyCache.get(companyName) == null){
-                        companyCache.put(companyName, new Company(company.getInt("id"),
-                                company.getString("name"), company.getDouble("average_rating"), company.getString("phone_number")));
+                    Integer companyId = company.getInt("id");
+                    if(companyCache.get(companyId) == null){
+                        Company newCompany = new Company(company.getInt("id"),
+                                company.getString("name"), company.getDouble("average_rating"),
+                                company.getString("phone_number"));
+
+                        companyCache.put(companyId, newCompany);
+
+                        //Get the company's logo
+                        newCompany.setLogo(getCompanyLogo(companyId));
                     }
+                    String companyName = companyCache.get(companyId).getName();
 
                     driverCache.put(beaconId, new Driver(result[i].getInt("id"), beaconId,
                             result[i].getString("first_name")+ " " +result[i].getString("last_name"),
-                            companyName, -1, result[i].getDouble("average_rating"),
+                            companyName, (float) result[i].getDouble("average_rating"),
+                            result[i].getString("phone_number"),
                             result[i].getBoolean("valid")));
 
                     nearbyDrivers.add(beaconId);
@@ -425,6 +441,28 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                 try{
                     out.close();
                 } catch(Throwable ignore) {}
+            }
+        }
+
+        private String getCompanyLogo(Integer companyId){
+            try {
+                URL url = new URL(CONSTANTS.SERVER_ADDRESS + "/mobile/images/companies/" + companyId + ".json");
+                HttpURLConnection connection = (HttpURLConnection) url
+                        .openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap img = BitmapFactory.decodeStream(input);
+
+                File path = new File(getCacheDir(), "COMPANY_" + companyId + ".png");
+                saveImageToCache(path.getAbsolutePath(), img);
+                Log.i("Company IMAGE", "SAVING IMAGE TO " + path.getAbsolutePath());
+                return path.getAbsolutePath();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("getBmpFromUrl error: ", e.getMessage().toString());
+                return null;
             }
         }
     }

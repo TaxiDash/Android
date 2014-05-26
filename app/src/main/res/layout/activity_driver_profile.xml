@@ -11,22 +11,15 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/taxi_list_header"
-                android:src="@drawable/taxi_list_header"
-                android:layout_gravity="center_horizontal" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/taxi_list_header"
+        android:layout_alignParentTop="true"
         android:layout_marginLeft="10dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/defaultDriverName"
         android:id="@+id/name"
-        android:layout_gravity="left|bottom" />
+        android:layout_gravity="center_horizontal" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -35,13 +28,20 @@
         android:layout_marginLeft="10dp"
         android:text="@string/defaultCompanyName"
         android:id="@+id/company_name"
-        android:layout_gravity="left|bottom" />
+        android:layout_gravity="center_horizontal" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/company_name"
+        android:id="@+id/image"
+        android:src="@drawable/default_driver"
+        android:layout_gravity="center_horizontal" />
+
+        <!--
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/taxi_list_header"
-        android:layout_toRightOf="@+id/name"
         android:layout_marginRight="10dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/defaultRating"
@@ -56,11 +56,19 @@
         android:layout_toRightOf="@+id/company_name"
         android:id="@+id/textView3"
         android:gravity="right|bottom" />
+        -->
+
+    <RatingBar
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:text="fill_parent"
+        android:id="@+id/driverRating"
+        android:layout_gravity="center_horizontal" />
 
         <com.beardedhen.androidbootstrap.BootstrapButton
             xmlns:bootstrapbutton="http://schemas.android.com/apk/res-auto"
             bootstrapbutton:bb_icon_right="fa-android"
-            bootstrapbutton:bb_roundedCorners="true"
+            bootstrapbutton:bb_roundedCorners="false"
             bootstrapbutton:bb_type="primary"
             bootstrapbutton:bb_text_gravity="center"
             android:layout_width="fill_parent"
@@ -68,7 +76,7 @@
             android:textSize="40sp"
             android:text="@string/selectDriverLabel"
             android:onClick="onStartRideClicked"
-            android:layout_below="@+id/company_name"
+            android:layout_alignParentBottom="true"
             />
 
     </RelativeLayout>

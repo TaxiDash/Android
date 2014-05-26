@@ -1,7 +1,9 @@
 package com.gmail.brian.broll.taxidash.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -50,6 +52,7 @@ public class RateDriver extends Activity {
         //Retrieve the driver
         Intent intent = getIntent();
         currentDriver = intent.getParcelableExtra("Driver");
+        Log.i("ON RATING CREATE", "currentDriver's image is " + currentDriver.getImageURL());
 
         assert currentDriver != null;//Handle this error TODO
 
@@ -79,18 +82,51 @@ public class RateDriver extends Activity {
     }
 
     private void submitNotification(int responseCode){
-        Log.d("RATING", "SUBMITTING NOTIFICIATION with response code " + responseCode);
+        Log.d("RATING", "SUBMITTING NOTIFICATION with response code " + responseCode);
+
         if(responseCode == 201) {//Success
-            if(rating.getRating() == 5) {
+
+
+            if (rating.getRating() == 5 && !isFavoriteDriver(currentDriver)) {
                 //Ask to favorite the driver
-                //TODO
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-            }else {
-                //Simply display a toast
+                alert.setMessage("Would you like to add " + currentDriver.getName()
+                        + " to your favorite drivers?");
+
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //Create intent to go to favorite driver page
+                        Intent nextActivity = new Intent(getApplicationContext(), FavoriteDriverList.class);
+                        nextActivity.putExtra("Driver", currentDriver);
+                        startActivity(nextActivity);
+                    }
+                });
+
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.cancel();
+                        Intent nextActivity = new Intent(getApplicationContext(), NearbyCabList.class);
+                        Toast.makeText(getApplicationContext(), "Your rating has been submitted!", Toast.LENGTH_SHORT).show();
+
+                        startActivity(nextActivity);
+                    }
+                });
+
+                alert.show();
+            }else{
+
+                Intent nextActivity = new Intent(getApplicationContext(), NearbyCabList.class);
                 Toast.makeText(getApplicationContext(), "Your rating has been submitted!", Toast.LENGTH_SHORT).show();
-            }
-        }
 
+                startActivity(nextActivity);
+            }
+
+        } else {
+            //Error occurred
+            //More detail? TODO
+            Toast.makeText(getApplicationContext(), "Your rating failed to save", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onSubmitRatingClicked(View view){
@@ -111,6 +147,12 @@ public class RateDriver extends Activity {
         int id = item.getItemId();
 
         return id == R.id.action_settings || super.onOptionsItemSelected(item);
+    }
+
+    private boolean isFavoriteDriver(Driver driver){
+        //This should check if a driver is already "favorited"
+        Log.i("CHECKING FAVORITES", driver.getName() + " is fav? " + UTILS.loadFavoriteDrivers(this.getApplicationContext()).contains(driver));
+        return UTILS.loadFavoriteDrivers(this.getApplicationContext()).contains(driver);
     }
 
         private class submitRating extends AsyncTask<Void, Void, Integer> {

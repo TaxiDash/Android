@@ -18,7 +18,7 @@ public class DriverCard extends Card {
 
     public DriverCard(Context context) {
         super(context, R.layout.driver_card_layout);
-        this.driver = new Driver(1, 1, "Dummy Driver", "Dumb Company", 10, 2.4, true);
+        this.driver = new Driver(1, 1, "Dummy Driver", "Dumb Company", 2.4f, "", true);
         init();
     }
 
@@ -34,6 +34,7 @@ public class DriverCard extends Card {
 
     private void init(){
         // Add company picture
+        //ImageView image = (ImageView)
         //TODO
     }
 
@@ -57,7 +58,7 @@ public class DriverCard extends Card {
 
         if(rating != null) {
             rating.setNumStars(CONSTANTS.MAX_RATING);
-            rating.setRating((float) this.driver.getRating());
+            rating.setRating(this.driver.getRating());
         }
     }
 }

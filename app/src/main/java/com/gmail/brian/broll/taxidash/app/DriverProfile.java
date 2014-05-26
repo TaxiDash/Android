@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -48,7 +50,7 @@ public class DriverProfile extends Activity{
 
         if(driver == null){
             //Fail gracefully-ish
-            driver = new Driver(-1, -1, "NO DRIVER RECEIVED", null, -1, -1, false);
+            driver = new Driver(-1, -1, "NO DRIVER RECEIVED", null, -1, "", false);
         }
 
         //Set the driver attributes in the view
@@ -60,8 +62,9 @@ public class DriverProfile extends Activity{
         company.setText(driver.getCompanyName());
 
 
-        TextView rating = (TextView) findViewById(R.id.driverRating);
-        rating.setText(driver.getRating() + "");
+        RatingBar rating = (RatingBar) findViewById(R.id.driverRating);
+        rating.setNumStars(CONSTANTS.MAX_RATING);
+        rating.setRating(driver.getRating());
 
         //TextView valid = (TextView) findViewById(R.id.valid);
         //String validTag = "Valid License";
@@ -72,22 +75,37 @@ public class DriverProfile extends Activity{
             //validTag = "License invalid";
         }
         //valid.setText(validTag);
+        if(driver.getImage() == null) {
+            new setDriverImage().execute(driver);
+        }else{
+            updateDriverImage();
+        }
     }
 
     private void updateDriverImage() {
         //Set the image
         ImageView image = (ImageView) findViewById(R.id.image);
-        image.setImageDrawable(driver.getImage());
+
+        Bitmap bitmap = driver.getImage();
+        if (bitmap != null && image != null) {
+            image.setImageBitmap(bitmap);
+        }
     }
 
     public void onStartRideClicked(View v){
         //Send intent to the rate driver activity
         Intent viewDriverIntent = new Intent(v.getContext(), RateDriver.class);
+        //Intent viewDriverIntent = new Intent(v.getContext(), FareEstimator.class);
         viewDriverIntent.putExtra("Driver", driver);
+        Log.i("ON PROFILE EXIT", "Driver image is " + driver.getImageURL());
         startActivity(viewDriverIntent);
     }
 
     private class setDriverImage extends AsyncTask<Driver, Void, Void> {
+        /*
+         * This should probably be moved to the main screen and
+         * only done if the driver's image is null
+         */
 
         @Override
         protected Void doInBackground(Driver... params) {
@@ -107,9 +125,10 @@ public class DriverProfile extends Activity{
                     InputStream input = connection.getInputStream();
                     Bitmap img = BitmapFactory.decodeStream(input);
 
-                    File path = new File(getFilesDir(), beaconId + ".png");
+                    File path = new File(getCacheDir(), beaconId + ".png");
                     saveImageToCache(path.getAbsolutePath(), img);
                     drvr.setImage(path.getAbsolutePath());
+                    Log.i("DRIVER IMAGE", "SAVING IMAGE TO " + path.getAbsolutePath());
 
                 } catch (IOException e) {
                     e.printStackTrace();
