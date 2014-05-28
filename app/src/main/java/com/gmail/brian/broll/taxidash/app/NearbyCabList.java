@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import org.apache.http.HttpEntity;
@@ -52,7 +53,7 @@ import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.view.CardListView;
 
 
-public class NearbyCabList extends Activity implements IBeaconConsumer{
+public class NearbyCabList extends NavigationActivity implements IBeaconConsumer{
     Map<Integer, Driver> driverCache = new HashMap<Integer, Driver>();
     Map<Integer, Company> companyCache = new HashMap<Integer, Company>();
 
@@ -86,7 +87,7 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
                 driver = ((DriverCard) c).getDriver();
 
                 Intent viewDriverIntent = new Intent(v.getContext(), DriverProfile.class);
-                viewDriverIntent.putExtra("Driver", driver);
+                viewDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
                 startActivity(viewDriverIntent);
             }
 
@@ -126,7 +127,11 @@ public class NearbyCabList extends Activity implements IBeaconConsumer{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_taxi__list);
+        LayoutInflater inflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View contentView = inflater.inflate(R.layout.activity_taxi__list, null, false);
+        content.addView(contentView, 0);
+        //setContentView(R.layout.activity_taxi__list);
 
         bAdaptor = BluetoothAdapter.getDefaultAdapter();
         if(bAdaptor == null){//bluetooth not supported on device
