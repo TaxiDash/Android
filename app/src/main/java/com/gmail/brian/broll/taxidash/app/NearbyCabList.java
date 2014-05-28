@@ -13,9 +13,11 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,6 +56,30 @@ import it.gmariotti.cardslib.library.view.CardListView;
 
 
 public class NearbyCabList extends NavigationActivity implements IBeaconConsumer{
+    /*
+     * A couple big things will be going on here:
+     *     + Populating the nearby cab list
+     *         + Getting beacon ids of nearby beacons
+     *         + Sending beacon ids to server for driver info
+     *         + Displaying the driver info of each driver in a list
+     *
+     *     + Clicking a cab for more info
+     *         + Send intent to another activity
+     *
+     *     + If no cabs...
+     *         + Alert user that no cabs are nearby
+     *         + Offer to call top cab companies
+     *             + Get cab companies and phone numbers from the server
+     *             + Pass intent to phone calling functionality
+     */
+
+    /*
+     * TODO:
+     *      + Listen for changes to bluetooth after app is running
+     *          + Warn the user that bluetooth must be enabled to get nearby cabs
+     *      + Alert the user that the app will not be able to get nearby cabs if BT not supported
+     */
+
     Map<Integer, Driver> driverCache = new HashMap<Integer, Driver>();
     Map<Integer, Company> companyCache = new HashMap<Integer, Company>();
 
@@ -62,6 +88,12 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
     ArrayList<Integer> nearbyDrivers = new ArrayList<Integer>();
     ArrayList<Integer> displayedDrivers = new ArrayList<Integer>();
     List<Card> displayedCards = new ArrayList<Card>();
+
+    //Drawer Layout Stuff
+    private LinearLayout drawerList;
+    private DrawerLayout drawerLayout;
+    private int drawerTitle = R.string.app_name;
+
 
     //iBeacon Stuff
     String BEACON_TAG = "iBEACON MSG:";
@@ -99,30 +131,6 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
         //TODO
         Typeface fontAwesome = Typeface.createFromAsset(getAssets(), "fontawesome-webfont.ttf");
     }
-
-    /*
-     * A couple big things will be going on here:
-     *     + Populating the nearby cab list
-     *         + Getting beacon ids of nearby beacons
-     *         + Sending beacon ids to server for driver info
-     *         + Displaying the driver info of each driver in a list
-     *
-     *     + Clicking a cab for more info
-     *         + Send intent to another activity
-     *
-     *     + If no cabs...
-     *         + Alert user that no cabs are nearby
-     *         + Offer to call top cab companies
-     *             + Get cab companies and phone numbers from the server
-     *             + Pass intent to phone calling functionality
-     */
-
-    /*
-     * TODO:
-     *      + Listen for changes to bluetooth after app is running
-     *          + Warn the user that bluetooth must be enabled to get nearby cabs
-     *      + Alert the user that the app will not be able to get nearby cabs if BT not supported
-     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -381,7 +389,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                     Integer companyId = company.getInt("id");
                     if(companyCache.get(companyId) == null){
                         Company newCompany = new Company(company.getInt("id"),
-                                company.getString("name"), company.getDouble("average_rating"),
+                                company.getString("name"), (float) company.getDouble("average_rating"),
                                 company.getString("phone_number"));
 
                         companyCache.put(companyId, newCompany);
