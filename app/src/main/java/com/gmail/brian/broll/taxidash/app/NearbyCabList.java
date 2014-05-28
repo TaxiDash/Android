@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -89,12 +90,6 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
     ArrayList<Integer> displayedDrivers = new ArrayList<Integer>();
     List<Card> displayedCards = new ArrayList<Card>();
 
-    //Drawer Layout Stuff
-    private LinearLayout drawerList;
-    private DrawerLayout drawerLayout;
-    private int drawerTitle = R.string.app_name;
-
-
     //iBeacon Stuff
     String BEACON_TAG = "iBEACON MSG:";
     private final int TOTAL_ATTEMPTS = 10;
@@ -117,6 +112,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                 iBM.unBind(self);
                 Driver driver;
                 driver = ((DriverCard) c).getDriver();
+                Log.i("NEARBY CABS", "Driver clicked has rating of " + driver.getRating());
 
                 Intent viewDriverIntent = new Intent(v.getContext(), DriverProfile.class);
                 viewDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
@@ -274,6 +270,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                 }
 
                 driverCard.setClickListener(viewDriver);
+                driverCard.setBackgroundResource(new ColorDrawable(getResources().getColor(R.color.cardColor)));
                 //Adding the driver
                 displayedDrivers.add(nearbyDriverId);
                 displayedCards.add(driverCard);

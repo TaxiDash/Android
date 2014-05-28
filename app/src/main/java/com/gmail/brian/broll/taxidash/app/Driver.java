@@ -16,7 +16,7 @@ import java.io.Serializable;
  *
  * Created by Brian Broll on 5/14/14.
  */
-public class Driver implements Comparable, Parcelable, Serializable{
+public class Driver implements Comparable, Parcelable, Serializable {
     //private IMAGE logo
     private int id = -1;
     private int beacon_id = -1;
@@ -119,7 +119,7 @@ public class Driver implements Comparable, Parcelable, Serializable{
         out.writeString(this.image);
         out.writeString(this.phoneNumber);
         out.writeDouble(this.distance);
-        out.writeDouble(this.rating);
+        out.writeFloat(this.rating);
         if(this.validLicense) {
             out.writeInt(1);
         }else {

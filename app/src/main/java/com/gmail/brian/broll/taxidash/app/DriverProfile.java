@@ -1,17 +1,23 @@
 package com.gmail.brian.broll.taxidash.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.beardedhen.androidbootstrap.BootstrapButton;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,7 +42,11 @@ public class DriverProfile extends NavigationActivity{
         @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_driver_profile);
+        LayoutInflater inflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View contentView = inflater.inflate(R.layout.activity_driver_profile, null, false);
+        content.addView(contentView, 0);
+
         //Get the intent
         Intent intent = getIntent();
         driver = intent.getParcelableExtra("Driver");
@@ -63,18 +73,18 @@ public class DriverProfile extends NavigationActivity{
 
 
         RatingBar rating = (RatingBar) findViewById(R.id.driverRating);
-        rating.setNumStars(CONSTANTS.MAX_RATING);
+        //rating.setNumStars(CONSTANTS.MAX_RATING);
         rating.setRating(driver.getRating());
+        rating.setOnClickListener(null);//nop on click
 
-        //TextView valid = (TextView) findViewById(R.id.valid);
-        //String validTag = "Valid License";
         if(!driver.hasValidLicense()) {
-            //Consider switching this out so the background
-            //Changes to alert that the license is invalid
-            //OW, assume license valid TODO
-            //validTag = "License invalid";
+            BootstrapButton button = (BootstrapButton) findViewById(R.id.rideButton);
+            button.setBootstrapType("danger");
+            button.setBootstrapButtonEnabled(true);
+            button.setText("Invalid License");
+            button.setOnClickListener(null);
         }
-        //valid.setText(validTag);
+
         if(driver.getImage() == null) {
             new setDriverImage().execute(driver);
         }else{

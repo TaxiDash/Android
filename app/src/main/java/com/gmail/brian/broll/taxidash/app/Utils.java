@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * This class will have utility functions that are used
  * by multiple classes
  */
-public class UTILS {
+public class Utils {
 
     public static ArrayList<Driver> loadFavoriteDrivers(Context context) {
         //Load the favorite drivers from file

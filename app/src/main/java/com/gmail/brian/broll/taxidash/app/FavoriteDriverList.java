@@ -1,9 +1,9 @@
 package com.gmail.brian.broll.taxidash.app;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -69,7 +69,7 @@ public class FavoriteDriverList extends NavigationActivity {
         View contentView = inflater.inflate(R.layout.activity_favorite_driver_list, null, false);
         content.addView(contentView, 0);
 
-        favoriteDrivers = UTILS.loadFavoriteDrivers(this.getApplicationContext());
+        favoriteDrivers = Utils.loadFavoriteDrivers(this.getApplicationContext());
 
         //Create the card list of favorite drivers
         CardListView list = (CardListView) findViewById(R.id.favorite_driver_list);
@@ -183,6 +183,7 @@ public class FavoriteDriverList extends NavigationActivity {
         }
 
         DriverCard card = new DriverCard(this.getApplicationContext(), driver);
+        card.setBackgroundResource(new ColorDrawable(getResources().getColor(R.color.cardColor)));
         card.setClickListener(clickListener);
         card.setSwipeable(false);//TODO swiping should remove driver from list
         card.setOnSwipeListener(swipeListener);

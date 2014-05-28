@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:id="@+id/profile_container"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:layout_centerVertical="true">
 
     <TextView
         android:layout_width="wrap_content"
@@ -17,8 +17,20 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="10dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/emptyString"
+        android:id="@+id/validity"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/validity"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/defaultDriverName"
         android:id="@+id/name"
+        android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal" />
 
     <TextView
@@ -28,6 +40,7 @@
         android:layout_marginLeft="10dp"
         android:text="@string/defaultCompanyName"
         android:id="@+id/company_name"
+        android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal" />
 
     <ImageView
@@ -36,42 +49,32 @@
         android:layout_below="@+id/company_name"
         android:id="@+id/image"
         android:src="@drawable/default_driver"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_gravity="center_horizontal" />
 
-        <!--
-    <TextView
+     <RatingBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/defaultRating"
-        android:id="@+id/driverRating"
-        android:gravity="right" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ratingLabel"
-        android:layout_below="@+id/driverRating"
-        android:layout_toRightOf="@+id/company_name"
-        android:id="@+id/textView3"
-        android:gravity="right|bottom" />
-        -->
-
-    <RatingBar
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_below="@id/image"
         android:text="fill_parent"
+        android:numStars="5"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:id="@+id/driverRating"
-        android:layout_gravity="center_horizontal" />
+        android:layout_centerHorizontal="true" />
 
-        <com.beardedhen.androidbootstrap.BootstrapButton
+    </RelativeLayout>
+     <com.beardedhen.androidbootstrap.BootstrapButton
             xmlns:bootstrapbutton="http://schemas.android.com/apk/res-auto"
             bootstrapbutton:bb_icon_right="fa-android"
             bootstrapbutton:bb_roundedCorners="false"
             bootstrapbutton:bb_type="primary"
             bootstrapbutton:bb_text_gravity="center"
+
             android:layout_width="fill_parent"
+            android:id="@+id/rideButton"
             android:layout_height="80dp"
             android:textSize="40sp"
             android:text="@string/selectDriverLabel"
@@ -79,5 +82,4 @@
             android:layout_alignParentBottom="true"
             />
 
-    </RelativeLayout>
-</FrameLayout>
+</RelativeLayout>

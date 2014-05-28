@@ -3,6 +3,7 @@
 
     <string name="app_name">TaxiDash</string>
     <string name="hello_world">Hello world!</string>
+    <string name="emptyString"></string>
 
     <string name="ratingLabel">Driver Rating</string>
     <string name="defaultRating">NO RATING</string>

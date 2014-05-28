@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -137,6 +138,7 @@ public class LocalCompanyList extends NavigationActivity{
             for(Company company : companies){
                 CompanyCard card = new CompanyCard(getApplicationContext(), company);
 
+                card.setBackgroundResource(new ColorDrawable(getResources().getColor(R.color.cardColor)));
                 card.setOnClickListener(callCompany);
                 displayedCards.add(card);
             }

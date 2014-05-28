@@ -2,6 +2,7 @@ package com.gmail.brian.broll.taxidash.app;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,7 +19,10 @@ public class FareEstimator extends NavigationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fare_estimator);
+        LayoutInflater inflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View contentView = inflater.inflate(R.layout.activity_fare_estimator, null, false);
+        content.addView(contentView, 0);
 
         Intent intent = getIntent();
         currentDriver = intent.getParcelableExtra("Driver");

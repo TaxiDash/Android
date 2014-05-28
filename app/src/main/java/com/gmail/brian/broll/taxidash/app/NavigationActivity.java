@@ -75,7 +75,7 @@ public class NavigationActivity extends Activity {
 
         //set the ActionBar app icon to open drawer
         ActionBar actionBar = getActionBar();
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLUE));
+        actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.blue)));
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         drawerToggle = new ActionBarDrawerToggle((Activity) this, drawerLayout, R.drawable.ic_drawer, 0, 0) {

@@ -1,6 +1,5 @@
 package com.gmail.brian.broll.taxidash.app;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-public class RateDriver extends Activity {
+public class RateDriver extends NavigationActivity {
     /*
      * This activity is the rating screen for the app.
      * It will need to receive the selected driver object
@@ -44,7 +44,10 @@ public class RateDriver extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rate_driver);
+        LayoutInflater inflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View contentView = inflater.inflate(R.layout.activity_rate_driver, null, false);
+        content.addView(contentView, 0);
 
         //Set USER_ID
         TelephonyManager tManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
@@ -151,8 +154,8 @@ public class RateDriver extends Activity {
 
     private boolean isFavoriteDriver(Driver driver){
         //This should check if a driver is already "favorited"
-        Log.i("CHECKING FAVORITES", driver.getName() + " is fav? " + UTILS.loadFavoriteDrivers(this.getApplicationContext()).contains(driver));
-        return UTILS.loadFavoriteDrivers(this.getApplicationContext()).contains(driver);
+        Log.i("CHECKING FAVORITES", driver.getName() + " is fav? " + Utils.loadFavoriteDrivers(this.getApplicationContext()).contains(driver));
+        return Utils.loadFavoriteDrivers(this.getApplicationContext()).contains(driver);
     }
 
         private class submitRating extends AsyncTask<Void, Void, Integer> {
