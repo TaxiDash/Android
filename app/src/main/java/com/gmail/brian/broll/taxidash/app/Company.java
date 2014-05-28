@@ -15,10 +15,10 @@ public class Company implements Comparable, Parcelable{
     private int id = -1;
     private String logo = null;
     private String name = null;
-    private double rating = -1;
+    private float rating = -1;
     private String phoneNumber = null;
 
-    public Company(int idNumber, String name, double rating, String phoneNumber){
+    public Company(int idNumber, String name, float rating, String phoneNumber){
         this.id = idNumber;
         this.name = name;
         this.rating = rating;
@@ -52,7 +52,7 @@ public class Company implements Comparable, Parcelable{
         return this.phoneNumber;
     }
 
-    public double getRating(){
+    public float getRating(){
         return this.rating;
     }
 
@@ -71,7 +71,7 @@ public class Company implements Comparable, Parcelable{
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(this.id);
         out.writeString(this.name);
-        out.writeDouble(this.rating);
+        out.writeFloat(this.rating);
         out.writeString(this.phoneNumber);
         out.writeString(this.logo);
     }
@@ -79,7 +79,7 @@ public class Company implements Comparable, Parcelable{
     public void readFromParcel(Parcel in) {
         this.id = in.readInt();
         this.name = in.readString();
-        this.rating = in.readDouble();
+        this.rating = in.readFloat();
         this.phoneNumber = in.readString();
         this.logo = in.readString();
     }
