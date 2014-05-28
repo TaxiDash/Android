@@ -30,14 +30,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
+import it.gmariotti.cardslib.library.view.CardListView;
 
 /**
  * Created by Brian Broll on 5/17/14.
  */
 public class LocalCompanyList extends Activity{
-    private Map<Integer, String> companyPhoneBook = new HashMap<Integer, String>();
+    private List<Company> companies = new ArrayList<Company>();
+    private String COMPANY_TAG = "COMPANY LIST";
+    private Card.OnCardClickListener callCompany = new Card.OnCardClickListener() {
+        @Override
+        public void onClick(Card c, View v) {
+            //What should happen when driver panel is pressed
+            Intent callIntent = new Intent(Intent.ACTION_CALL);
+            callIntent.setData(Uri.parse("tel:" + ((CompanyCard) c).getPhoneNumber()));
+            startActivity(callIntent);
+        }
+    };
     /*
      * This will get a list of local companies from the server
      * sorted by rating. These will be presented in a list for
@@ -46,7 +60,6 @@ public class LocalCompanyList extends Activity{
 
     //TODO:
     //Consider adding companies one at a time...
-    //Create android spinner
 
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -72,34 +85,19 @@ public class LocalCompanyList extends Activity{
         name.setTextSize(25);
         panel.addView(name);
 
-        //Add the click listener to send intent to calling the company
-        View.OnClickListener callCompany = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //What should happen when driver panel is pressed
-                String phoneNumber = companyPhoneBook.get(v.getId());
-
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:" + phoneNumber));
-                startActivity(callIntent);
-                //TODO add company logo to call screen?
-            }
-        };
-
         //Attach calling functionality
         panel.setId(company.getId());
-        panel.setOnClickListener(callCompany);
 
         return panel;
     }
 
-    private class createCompanyList extends AsyncTask<Void, Void, Company[]> {
+    private class createCompanyList extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected Company[] doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
             Company[] companies = null;
             //Get the contact info for the companies
-            Log.i("COMPANY NETWORK STUFF", "ABOUT TO REQUEST COMPANY CONTACT INFO");
+            Log.i(COMPANY_TAG, "ABOUT TO REQUEST COMPANY CONTACT INFO");
             String endpoint = CONSTANTS.SERVER_ADDRESS + "/mobile/companies/contact.json";
 
             try {
@@ -113,38 +111,44 @@ public class LocalCompanyList extends Activity{
                 JSONObject companyContactInfo = new JSONObject(companyRaw);
 
                 JSONArray companiesJSON = companyContactInfo.getJSONArray("companies");
-                companies = createCompaniesFromJSON(companiesJSON);
+                createCompaniesFromJSON(companiesJSON);
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (Exception e) {
+                //Add support for something breaking on the server
+                //This would mean we need to handle things gracefully
                 e.printStackTrace();
             }
-            return companies;
+            return null;
         }
 
-        protected void onPostExecute(Company[] companies){
-            LinearLayout list = (LinearLayout) findViewById(R.id.company_list);
-            LinearLayout companyPanel;
+        protected void onPostExecute(Void result){
+            CardListView list = (CardListView) findViewById(R.id.company_list);
+            List<Card> displayedCards = new ArrayList<Card>();
 
-            for(int i = 0; i < companies.length; i++) {
-                companyPanel = createCompanyPanel(companies[i]);
-                list.addView(companyPanel);
+            //Add cards to the list
+            for(Company company : companies){
+                CompanyCard card = new CompanyCard(getApplicationContext(), company);
+
+                card.setOnClickListener(callCompany);
+                displayedCards.add(card);
             }
+
+            CardArrayAdapter adapter = new CardArrayAdapter(getApplicationContext(), displayedCards);
+            list.setAdapter(adapter);
+            Log.i(COMPANY_TAG, "Finished adding cards (" + displayedCards.size() + ")");
         }
 
-        private Company[] createCompaniesFromJSON(JSONArray json){
-            Company[] result = new Company[json.length()];
+        private void createCompaniesFromJSON(JSONArray json){
             JSONObject jsonObject;
             Company company;
 
-                for (int i = 0; i < result.length; i++) {
+                for (int i = 0; i < json.length(); i++) {
                     try {
                         //Create each company
                         jsonObject = (JSONObject) json.get(i);
                         company = new Company(jsonObject.getInt("id"),
                                               jsonObject.getString("name"),
-                                              jsonObject.getDouble("average_rating"),
+                                              (float) jsonObject.getDouble("average_rating"),
                                               jsonObject.getString("phone_number"));
 
                         Log.i("COMPANY RETRIEVAL", jsonObject.getString("name") + "'s phone number is " + jsonObject.getString("phone_number"));
@@ -161,10 +165,9 @@ public class LocalCompanyList extends Activity{
                         saveImageToCache(path.getAbsolutePath(), image);
 
                         company.setLogo(path.getAbsolutePath());
-                        result[i] = company;
+                        companies.add(company);
 
                         //Add company number to the "phone book"
-                        companyPhoneBook.put(company.getId(), company.getPhoneNumber());
                     } catch (JSONException e) {
                         //Handle a server address failure
                         //TODO
@@ -173,8 +176,6 @@ public class LocalCompanyList extends Activity{
                         e.printStackTrace();
                     }
                 }
-
-            return result;
         }
 
         private void saveImageToCache(String filename, Bitmap image) {
