@@ -182,7 +182,9 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
     @Override
     public void onResume(){
         super.onResume();
-        iBM.bind(this);
+        if(BluetoothAdapter.getDefaultAdapter() != null) {
+            startBlueTooth();
+        }
     }
 
     private void offerToCallCompany(String reason){
@@ -234,7 +236,9 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
     protected void displayDriverInfo(){
         //Stop the waiting bar
         if(nearbyDrivers.size() > 0){
-            progress.dismiss();
+            if(progress != null) {
+                progress.dismiss();
+            }
             ATTEMPTS_LEFT = TOTAL_ATTEMPTS;
         }else if(ATTEMPTS_LEFT == 0) {
             //Ask to keep searching

@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 
 
-public class FareEstimator extends Activity {
+public class FareEstimator extends NavigationActivity {
     private Driver currentDriver = null;
 
     @Override

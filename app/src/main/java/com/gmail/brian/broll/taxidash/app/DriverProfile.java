@@ -23,7 +23,7 @@ import java.net.URL;
 /**
  * Created by Brian Broll on 5/15/14.
  */
-public class DriverProfile extends Activity{
+public class DriverProfile extends NavigationActivity{
     /*
      * This activity will show the driver information in a full panel.
      * It will show a "Start Ride" button which will allow the user

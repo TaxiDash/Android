@@ -62,6 +62,9 @@ public class NavigationActivity extends Activity {
                     case 2: //Favorite Drivers
                         nextActivity = new Intent(getApplicationContext(), FavoriteDriverList.class);
                         break;
+                    case 3: //Fare Estimation
+                        nextActivity = new Intent(getApplicationContext(), FareEstimator.class);
+                        break;
                 }
 
                 if(nextActivity != null) {

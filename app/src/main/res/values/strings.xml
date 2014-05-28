@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">TaxiDash</string>
+    <string name="hello_world">Hello world!</string>
+
     <string name="ratingLabel">Driver Rating</string>
     <string name="defaultRating">NO RATING</string>
     <string name="defaultDriverName">NO DRIVER NAME</string>
@@ -21,14 +23,14 @@
     <string name="submitRide">Submit anonymous ride info?</string>
     <string name="submitRatingLabel">Rate</string>
     <string name="title_activity_favorite_driver_list">Favorite Drivers</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_fare_estimator">Fare Estimator</string>
+    <string name="title_activity_fare_estimator">Estimate Fare</string>
 
     <!-- Action Bar Titles -->
     <string-array name="activities">
         <item>Nearby Cabs</item>
         <item>Local Cab Companies</item>
         <item>Favorite Drivers</item>
+        <item>Estimate Fare</item>
     </string-array>
 
 </resources>
