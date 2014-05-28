@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.File;
+import java.io.Serializable;
 
 
 /**
@@ -15,7 +16,7 @@ import java.io.File;
  *
  * Created by Brian Broll on 5/14/14.
  */
-public class Driver implements Comparable, Parcelable{
+public class Driver implements Comparable, Parcelable, Serializable{
     //private IMAGE logo
     private int id = -1;
     private int beacon_id = -1;

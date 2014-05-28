@@ -53,7 +53,7 @@ public class DriverCard extends Card {
         }
 
         if(companyName != null){
-            companyName.setText("Distance: " + this.driver.getDistance());
+            companyName.setText(this.driver.getCompanyName());
         }
 
         if(rating != null) {

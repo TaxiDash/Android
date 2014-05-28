@@ -9,7 +9,7 @@ package com.gmail.brian.broll.taxidash.app;
 public class CONSTANTS {
     public static final boolean DEMO_MODE = false;
     //public static final String SERVER_ADDRESS = "http://taxi-rating-server.herokuapp.com";
-    public static final String SERVER_ADDRESS = "http://10.0.0.2:3000";
+    public static final String SERVER_ADDRESS = "http://68.53.106.44:3000";
 
     public static final int MAX_RATING = 5;
     public static String CITY_NAME = "Nashville";

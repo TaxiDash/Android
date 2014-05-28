@@ -1,11 +1,13 @@
 package com.gmail.brian.broll.taxidash.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +25,7 @@ import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.view.CardListView;
 
 
-public class FavoriteDriverList extends Activity {
+public class FavoriteDriverList extends NavigationActivity {
     ArrayList<Driver> favoriteDrivers;
 
     ArrayList<DriverCard> selectedCards = new ArrayList<DriverCard>();
@@ -62,7 +64,10 @@ public class FavoriteDriverList extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorite_driver_list);
+        LayoutInflater inflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View contentView = inflater.inflate(R.layout.activity_favorite_driver_list, null, false);
+        content.addView(contentView, 0);
 
         favoriteDrivers = UTILS.loadFavoriteDrivers(this.getApplicationContext());
 
@@ -159,6 +164,7 @@ public class FavoriteDriverList extends Activity {
         File favoriteDriverFile = new File(getFilesDir(), favFileName);
         try {
 
+            Log.i("Favorite Driver List", "About to save drivers to " + favoriteDriverFile.getPath());
             FileOutputStream fileOutputStream = new FileOutputStream(favoriteDriverFile.getPath());
             ObjectOutputStream out = new ObjectOutputStream(fileOutputStream);
             out.writeObject(favoriteDrivers);
@@ -174,13 +180,14 @@ public class FavoriteDriverList extends Activity {
     private void addDriver(Driver driver){
         if(!favoriteDrivers.contains(driver)) {
             favoriteDrivers.add(driver);
-
-            DriverCard card = new DriverCard(this.getApplicationContext(), driver);
-            card.setClickListener(clickListener);
-            card.setSwipeable(false);//TODO swiping should remove driver from list
-            card.setOnSwipeListener(swipeListener);
-            displayedCards.add(card);
         }
+
+        DriverCard card = new DriverCard(this.getApplicationContext(), driver);
+        card.setClickListener(clickListener);
+        card.setSwipeable(false);//TODO swiping should remove driver from list
+        card.setOnSwipeListener(swipeListener);
+        displayedCards.add(card);
+        saveFavoriteDrivers();
     }
 
     private void selectDriverCard(DriverCard driverCard){

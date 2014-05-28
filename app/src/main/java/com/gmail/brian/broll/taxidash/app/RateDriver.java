@@ -98,7 +98,7 @@ public class RateDriver extends Activity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         //Create intent to go to favorite driver page
                         Intent nextActivity = new Intent(getApplicationContext(), FavoriteDriverList.class);
-                        nextActivity.putExtra("Driver", currentDriver);
+                        nextActivity.putExtra("Driver", (android.os.Parcelable) currentDriver);
                         startActivity(nextActivity);
                     }
                 });

@@ -96,7 +96,7 @@ public class DriverProfile extends Activity{
         //Send intent to the rate driver activity
         Intent viewDriverIntent = new Intent(v.getContext(), RateDriver.class);
         //Intent viewDriverIntent = new Intent(v.getContext(), FareEstimator.class);
-        viewDriverIntent.putExtra("Driver", driver);
+        viewDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
         Log.i("ON PROFILE EXIT", "Driver image is " + driver.getImageURL());
         startActivity(viewDriverIntent);
     }

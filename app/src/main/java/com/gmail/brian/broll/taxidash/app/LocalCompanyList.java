@@ -1,6 +1,7 @@
 package com.gmail.brian.broll.taxidash.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -40,7 +42,7 @@ import it.gmariotti.cardslib.library.view.CardListView;
 /**
  * Created by Brian Broll on 5/17/14.
  */
-public class LocalCompanyList extends Activity{
+public class LocalCompanyList extends NavigationActivity{
     private List<Company> companies = new ArrayList<Company>();
     private String COMPANY_TAG = "COMPANY LIST";
     private Card.OnCardClickListener callCompany = new Card.OnCardClickListener() {
@@ -63,7 +65,13 @@ public class LocalCompanyList extends Activity{
 
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_company_list);
+        LayoutInflater inflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View contentView = inflater.inflate(R.layout.activity_company_list, null, false);
+        content.addView(contentView, 0);
+
+        //Creating loading notification
+        //TODO
 
         new createCompanyList().execute();
     }
