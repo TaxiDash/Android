@@ -13,4 +13,5 @@ public class CONSTANTS {
 
     public static final int MAX_RATING = 5;
     public static String CITY_NAME = "Nashville";
+    public static String TEMP = null;
 }

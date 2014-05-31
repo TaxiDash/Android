@@ -4,14 +4,12 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -63,7 +61,7 @@ public class NavigationActivity extends Activity {
                         nextActivity = new Intent(getApplicationContext(), FavoriteDriverList.class);
                         break;
                     case 3: //Fare Estimation
-                        nextActivity = new Intent(getApplicationContext(), FareEstimator.class);
+                        nextActivity = new Intent(getApplicationContext(), LocationFinder.class);
                         break;
                 }
 

@@ -10,15 +10,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -36,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +58,7 @@ import com.radiusnetworks.ibeacon.Region;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
+import it.gmariotti.cardslib.library.internal.CardThumbnail;
 import it.gmariotti.cardslib.library.view.CardListView;
 
 
@@ -102,6 +108,8 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
     Card.OnCardClickListener viewDriver;
     ProgressDialog progress;
 
+    TextView noneFoundMsg = null;
+
     public NearbyCabList() {
         final IBeaconConsumer self;
         self = this;
@@ -118,7 +126,6 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                 viewDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
                 startActivity(viewDriverIntent);
             }
-
         };
     }
 
@@ -135,7 +142,22 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View contentView = inflater.inflate(R.layout.activity_taxi__list, null, false);
         content.addView(contentView, 0);
-        //setContentView(R.layout.activity_taxi__list);
+
+        //Get temp dir
+        if(CONSTANTS.TEMP == null) {
+            CONSTANTS.TEMP = getFilesDir() + "/tmp";
+            new File(CONSTANTS.TEMP).mkdir();
+        }
+
+        //Set noneFoundMsg
+        noneFoundMsg = new TextView(this);
+        noneFoundMsg.setText("Searching for nearby taxis...");
+        noneFoundMsg.setTextSize(24);
+        noneFoundMsg.setTextColor(getResources().getColor(R.color.lightText));
+        noneFoundMsg.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        FrameLayout container = (FrameLayout) findViewById(R.id.containerq);
+        container.addView(noneFoundMsg);
 
         bAdaptor = BluetoothAdapter.getDefaultAdapter();
         if(bAdaptor == null){//bluetooth not supported on device
@@ -143,10 +165,11 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
             //cab info
             offerToCallCompany("Your device does not have bluetooth and " +
                     "will not be able to detect nearby cabs. ");
+        }else{
+            startBlueTooth();
         }
-
-        startBlueTooth();
     }
+
     private void startBlueTooth(){
         //Make sure the user has bluetooth
         if(!bAdaptor.isEnabled()){
@@ -178,9 +201,9 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
     @Override
     public void onResume(){
         super.onResume();
-        if(BluetoothAdapter.getDefaultAdapter() != null) {
-            startBlueTooth();
-        }
+        //if((bAdaptor = BluetoothAdapter.getDefaultAdapter()) != null) {
+            //startBlueTooth();
+        //}
     }
 
     private void offerToCallCompany(String reason){
@@ -261,6 +284,9 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
         Context context = this.getApplicationContext();
         for(Integer nearbyDriverId : nearbyDriversClone){
             //Create the driver's card
+            FrameLayout container = (FrameLayout) findViewById(R.id.containerq);
+            container.removeView(noneFoundMsg);
+
             if(displayedDrivers.indexOf(nearbyDriverId) == -1) { //Add the driver
                 DriverCard driverCard;
                 if (CONSTANTS.DEMO_MODE) {
@@ -350,7 +376,6 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                 Log.i(BEACON_TAG, "ABOUT TO REQUEST DRIVER INFO");
 
                 new getNearbyCabInfo().execute(bIds);
-
             }
         });
 
@@ -373,6 +398,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
             for(int i = 0; i < beaconIds.length; i++) {
                 beaconId = beaconIds[i];
                 String endpoint = CONSTANTS.SERVER_ADDRESS + "/mobile/" + beaconId + ".json";
+                Log.i("REQUESTING CAB", "AT " + endpoint);
 
                 try {
                     HttpClient http = new DefaultHttpClient();
@@ -398,11 +424,10 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                         //Get the company's logo
                         newCompany.setLogo(getCompanyLogo(companyId));
                     }
-                    String companyName = companyCache.get(companyId).getName();
 
                     driverCache.put(beaconId, new Driver(result[i].getInt("id"), beaconId,
                             result[i].getString("first_name")+ " " +result[i].getString("last_name"),
-                            companyName, (float) result[i].getDouble("average_rating"),
+                            companyCache.get(companyId), (float) result[i].getDouble("average_rating"),
                             result[i].getString("phone_number"),
                             result[i].getBoolean("valid")));
 
@@ -444,7 +469,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
         }
 
         private void saveImageToCache(String filename, Bitmap image) {
-            Log.i("IMAGE SAVING", "SAVING IMAGE TO " + filename);
+            Log.i("IMAGE SAVING", "GONNA SAVE IMAGE TO " + filename);
             FileOutputStream out = null;
             try {
                 out = new FileOutputStream(filename);
@@ -454,6 +479,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
             } finally {
                 try{
                     out.close();
+                    Log.i("IMAGE SAVING", "SAVED IMAGE TO " + filename);
                 } catch(Throwable ignore) {}
             }
         }
@@ -468,9 +494,10 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                 InputStream input = connection.getInputStream();
                 Bitmap img = BitmapFactory.decodeStream(input);
 
-                File path = new File(getCacheDir(), "COMPANY_" + companyId + ".png");
+                File path = new File(CONSTANTS.TEMP, "COMPANY_" + companyId + ".png");
+                Log.i("SAVING COMPANY IMAGE", "FILE PATH IS " + CONSTANTS.TEMP);
                 saveImageToCache(path.getAbsolutePath(), img);
-                Log.i("Company IMAGE", "SAVING IMAGE TO " + path.getAbsolutePath());
+                //Log.i("Company IMAGE", "SAVING IMAGE TO " + path.getAbsolutePath());
                 return path.getAbsolutePath();
 
             } catch (IOException e) {

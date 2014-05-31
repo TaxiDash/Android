@@ -48,6 +48,10 @@ public class Company implements Comparable, Parcelable{
         return BitmapFactory.decodeFile(this.logo);
     }
 
+    public String getLogoURL(){
+        return this.logo;
+    }
+
     public String getPhoneNumber(){
         return this.phoneNumber;
     }

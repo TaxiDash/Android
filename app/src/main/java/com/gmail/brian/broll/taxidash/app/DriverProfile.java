@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -103,12 +105,20 @@ public class DriverProfile extends NavigationActivity{
     }
 
     public void onStartRideClicked(View v){
+        //Create a ride
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        Ride ride = new Ride(latitude, longitude);
+
         //Send intent to the rate driver activity
-        Intent viewDriverIntent = new Intent(v.getContext(), RateDriver.class);
+        Intent rateDriverIntent = new Intent(v.getContext(), RateDriver.class);
         //Intent viewDriverIntent = new Intent(v.getContext(), FareEstimator.class);
-        viewDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
+        rateDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
+        rateDriverIntent.putExtra("Ride", ride);
         Log.i("ON PROFILE EXIT", "Driver image is " + driver.getImageURL());
-        startActivity(viewDriverIntent);
+        startActivity(rateDriverIntent);
     }
 
     private class setDriverImage extends AsyncTask<Driver, Void, Void> {

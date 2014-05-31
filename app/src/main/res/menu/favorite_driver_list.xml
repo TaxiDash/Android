@@ -2,6 +2,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.gmail.brian.broll.taxidash.app.FavoriteDriverList" >
+
+    <item android:id="@+id/action_call"
+        android:title="@string/action_call"
+        android:icon="@drawable/ic_action_call"
+        android:orderInCategory="75"
+        app:showAsAction="ifRoom"
+        android:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_delete"
+        android:title="@string/action_delete"
+        android:icon="@drawable/ic_action_discard"
+        android:orderInCategory="99"
+        app:showAsAction="ifRoom"
+        android:showAsAction="ifRoom"
+        />
+
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

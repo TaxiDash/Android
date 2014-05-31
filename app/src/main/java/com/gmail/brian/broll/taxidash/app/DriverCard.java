@@ -1,13 +1,14 @@
 package com.gmail.brian.broll.taxidash.app;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardThumbnail;
 
 /*
  * Created by Brian Broll on 5/20/14.
@@ -19,7 +20,6 @@ public class DriverCard extends Card {
 
     public DriverCard(Context context) {
         super(context, R.layout.driver_card_layout);
-        this.driver = new Driver(1, 1, "Dummy Driver", "Dumb Company", 2.4f, "", true);
         init();
     }
 
@@ -60,6 +60,20 @@ public class DriverCard extends Card {
         if(rating != null) {
             rating.setNumStars(CONSTANTS.MAX_RATING);
             rating.setRating(this.driver.getRating());
+        }
+    }
+
+    private class DriverThumbnail extends CardThumbnail{
+        private Company company;
+
+        public DriverThumbnail(Context context, Company company){
+            super(context);
+            this.company = company;
+        }
+
+        @Override
+        public void setupInnerViewElements(ViewGroup parent, View viewImage){
+            ((ImageView) viewImage).setImageBitmap(this.company.getLogo());
         }
     }
 }

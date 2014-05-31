@@ -4,7 +4,6 @@
     <string name="app_name">TaxiDash</string>
     <string name="hello_world">Hello world!</string>
     <string name="emptyString"></string>
-
     <string name="ratingLabel">Driver Rating</string>
     <string name="defaultRating">NO RATING</string>
     <string name="defaultDriverName">NO DRIVER NAME</string>
@@ -33,5 +32,18 @@
         <item>Favorite Drivers</item>
         <item>Estimate Fare</item>
     </string-array>
+
+    <!-- Action Button Titles -->
+    <string name="action_call">Call</string>
+    <string name="action_delete">Remove</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="distanceLabel">Total Distance:  </string>
+    <string name="fareLabel">Estimated Fare:  </string>
+    <string name="search_header">Enter your destination:</string>
+    <string name="defaultDistance">0 miles</string>
+    <string name="defaultFare">$0.00</string>
+    <string name="defaultAddress">NO ADDRESS FOUND</string>
+    <string name="defaultFeatureName">UNKNOWN</string>
+    <string name="title_activity_location_finder">LocationFinder</string>
 
 </resources>

@@ -11,7 +11,7 @@ public class FavoriteDriver extends Driver implements Serializable{
 
     public FavoriteDriver(Driver driver){
         super(driver.getId(), driver.getBeaconId(), driver.getName(),
-                driver.getCompanyName(), driver.getRating(),
+                driver.getCompany(), driver.getRating(),
                 driver.getPhoneNumber(), driver.hasValidLicense());
 
         if(driver.getImage() != null) {//If image url is set and image is still in cache

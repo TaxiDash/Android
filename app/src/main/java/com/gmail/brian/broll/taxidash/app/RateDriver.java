@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -14,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
@@ -27,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class RateDriver extends NavigationActivity {
@@ -52,6 +56,7 @@ public class RateDriver extends NavigationActivity {
         //Set USER_ID
         TelephonyManager tManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         USER_ID = "ANDROID_" + tManager.getDeviceId();
+
         //Retrieve the driver
         Intent intent = getIntent();
         currentDriver = intent.getParcelableExtra("Driver");
@@ -60,6 +65,21 @@ public class RateDriver extends NavigationActivity {
         assert currentDriver != null;//Handle this error TODO
 
         rating = new Rating(currentDriver);
+
+        if(intent.hasExtra("Ride")){
+            this.ride = intent.getParcelableExtra("Ride");
+
+            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            double longitude = location.getLongitude();
+            double latitude = location.getLatitude();
+
+            this.ride.setEndPoint(latitude, longitude);
+        }else{
+            LinearLayout container = (LinearLayout) findViewById(R.id.submit_ride_container);
+            View submitRide = findViewById(R.id.submitRide);
+            container.removeView(submitRide);
+        }
     }
 
     private void getRatingInfo(){
@@ -70,8 +90,8 @@ public class RateDriver extends NavigationActivity {
         EditText comments = (EditText) findViewById(R.id.comments);
         rating.setComments(comments.getText().toString());
 
-        boolean checked = ((CheckBox) findViewById(R.id.submitRide)).isChecked();
-        if(!checked){
+        CheckBox checkBox = (CheckBox) findViewById(R.id.submitRide);
+        if(checkBox == null || !checkBox.isChecked()){
             rating.removeRide();
         }
     }
@@ -90,7 +110,7 @@ public class RateDriver extends NavigationActivity {
         if(responseCode == 201) {//Success
 
 
-            if (rating.getRating() == 5 && !isFavoriteDriver(currentDriver)) {
+            if (rating.getRating() == CONSTANTS.MAX_RATING && !isFavoriteDriver(currentDriver)) {
                 //Ask to favorite the driver
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
@@ -155,7 +175,14 @@ public class RateDriver extends NavigationActivity {
     private boolean isFavoriteDriver(Driver driver){
         //This should check if a driver is already "favorited"
         Log.i("CHECKING FAVORITES", driver.getName() + " is fav? " + Utils.loadFavoriteDrivers(this.getApplicationContext()).contains(driver));
-        return Utils.loadFavoriteDrivers(this.getApplicationContext()).contains(driver);
+        ArrayList<Driver> favoriteDrivers =  Utils.loadFavoriteDrivers(this.getApplicationContext());
+        for(Driver fav : favoriteDrivers){
+            if(fav.getBeaconId() == driver.getBeaconId()){
+                return true;
+            }
+        }
+
+        return false;
     }
 
         private class submitRating extends AsyncTask<Void, Void, Integer> {

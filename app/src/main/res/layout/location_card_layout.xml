@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_gravity="center_vertical"
+    android:layout_height="match_parent">
+
+    <!--
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/card_thumbnail_image"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+        -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#444444"
+        android:text="@string/defaultFeatureName"
+        android:id="@+id/card_location_name"
+        android:layout_gravity="center_horizontal|center_vertical" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#777777"
+        android:text="@string/defaultAddress"
+        android:id="@+id/card_address"
+        android:layout_gravity="center_horizontal|center_vertical" />
+
+</LinearLayout>

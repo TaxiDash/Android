@@ -11,10 +11,14 @@ public class Ride implements Parcelable {
      * This class contains the ride info for the trip.
      * It may or may not be submitted to the server.
      */
+    //Location info
     private double startLatitude = 0;
     private double startLongitude = 0;
     private double endLatitude = 0;
     private double endLongitude = 0;
+
+    //Fare info
+    private double estimateFare = -1;
 
     public Ride(double startLatitude, double startLongitude){
         this.startLatitude = startLatitude;
@@ -26,6 +30,7 @@ public class Ride implements Parcelable {
         this.startLongitude = source.readDouble();
         this.endLatitude = source.readDouble();
         this.endLongitude = source.readDouble();
+        this.estimateFare = source.readDouble();
     }
 
     public double getStartLatitude(){
@@ -49,6 +54,14 @@ public class Ride implements Parcelable {
         this.endLongitude = endLongitude;
     }
 
+    public void setEstimateFare(double fare){
+        this.estimateFare = fare;
+    }
+
+    public double getEstimateFare(){
+        return this.estimateFare;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -60,6 +73,7 @@ public class Ride implements Parcelable {
         dest.writeDouble(this.startLongitude);
         dest.writeDouble(this.endLatitude);
         dest.writeDouble(this.endLongitude);
+        dest.writeDouble(this.estimateFare);
     }
 
     public static final Creator CREATOR = new Creator() {

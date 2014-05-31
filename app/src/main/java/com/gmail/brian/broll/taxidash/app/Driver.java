@@ -22,21 +22,21 @@ public class Driver implements Comparable, Parcelable, Serializable {
     private int beacon_id = -1;
     private String name = "NO NAME RECEIVED";
     private float rating = -1;
-    private String company;
+    private Company company;
     private String phoneNumber;
     protected String image = null; //filename (stored in cache)
 
     private boolean validLicense = false;
     private double distance = 100000;
 
-    public Driver(int id, int b, String n, String companyName, float r, String number, boolean valid){
+    public Driver(int id, int b, String n, Company co, float r, String number, boolean valid){
         this.id = id;
         this.beacon_id = b;
         this.name = n;
         this.rating = r;
         this.phoneNumber = number;
         this.validLicense = valid;
-        this.company = companyName;
+        this.company = co;
     }
 
     public Driver(Parcel source){
@@ -72,6 +72,10 @@ public class Driver implements Comparable, Parcelable, Serializable {
     }
 
     public String getCompanyName() {
+        return this.company.getName();
+    }
+
+    public Company getCompany(){
         return this.company;
     }
 
@@ -115,9 +119,9 @@ public class Driver implements Comparable, Parcelable, Serializable {
         out.writeInt(this.id);
         out.writeInt(this.beacon_id);
         out.writeString(this.name);
-        out.writeString(this.company);
         out.writeString(this.image);
         out.writeString(this.phoneNumber);
+        out.writeParcelable(this.company, flags);
         out.writeDouble(this.distance);
         out.writeFloat(this.rating);
         if(this.validLicense) {
@@ -131,9 +135,9 @@ public class Driver implements Comparable, Parcelable, Serializable {
         this.id = in.readInt();
         this.beacon_id = in.readInt();
         this.name = in.readString();
-        this.company = in.readString();
         this.image = in.readString();
         this.phoneNumber = in.readString();
+        this.company = in.readParcelable(Company.class.getClassLoader());
         this.distance = in.readDouble();
         this.rating = in.readFloat();
         this.validLicense = false;
