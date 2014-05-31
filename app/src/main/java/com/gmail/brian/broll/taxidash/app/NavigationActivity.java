@@ -4,18 +4,21 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /*
  * Created by Brian Broll on 5/27/14.
@@ -32,11 +35,21 @@ public class NavigationActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // R.id.drawer_layout should be in every activity with exactly the same id.
-        //setContentView(R.layout.activity_taxi__list);
+
+        //TODO Initialize constants if they haven't been already
         setContentView(R.layout.base_drawer_layout);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         layers = getResources().getStringArray(R.array.activities);
         drawerList = (ListView) findViewById(R.id.left_drawer);
+
+        //Create the header for the drawer
+        TextView header = new TextView(this);
+        header.setText(CONSTANTS.CITY_NAME);
+        header.setTextSize(24);
+        header.setGravity(Gravity.CENTER_HORIZONTAL);
+        header.setTextColor(Color.WHITE);
+        drawerList.addHeaderView(header);
+
         content = (FrameLayout) findViewById(R.id.content_frame);
 
         //Creating the drawer with items..
@@ -51,16 +64,16 @@ public class NavigationActivity extends Activity {
                 Intent nextActivity = null;
 
                 switch(pos){
-                    case 0: //Nearby Cabs
+                    case 1: //Nearby Cabs
                         nextActivity = new Intent(getApplicationContext(), NearbyCabList.class);
                         break;
-                    case 1: //Cab Companies
+                    case 2: //Cab Companies
                         nextActivity = new Intent(getApplicationContext(), LocalCompanyList.class);
                         break;
-                    case 2: //Favorite Drivers
+                    case 3: //Favorite Drivers
                         nextActivity = new Intent(getApplicationContext(), FavoriteDriverList.class);
                         break;
-                    case 3: //Fare Estimation
+                    case 4: //Fare Estimation
                         nextActivity = new Intent(getApplicationContext(), LocationFinder.class);
                         break;
                 }

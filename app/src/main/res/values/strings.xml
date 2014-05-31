@@ -24,6 +24,7 @@
     <string name="submitRatingLabel">Rate</string>
     <string name="title_activity_favorite_driver_list">Favorite Drivers</string>
     <string name="title_activity_fare_estimator">Estimate Fare</string>
+    <string name="title_activity_location_finder">Destination</string>
 
     <!-- Action Bar Titles -->
     <string-array name="activities">
@@ -44,6 +45,5 @@
     <string name="defaultFare">$0.00</string>
     <string name="defaultAddress">NO ADDRESS FOUND</string>
     <string name="defaultFeatureName">UNKNOWN</string>
-    <string name="title_activity_location_finder">LocationFinder</string>
 
 </resources>
