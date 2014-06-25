@@ -148,7 +148,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
         noneFoundMsg.setText("Searching for nearby taxis...");
         noneFoundMsg.setTextSize(24);
         noneFoundMsg.setTextColor(getResources().getColor(R.color.lightText));
-        noneFoundMsg.setGravity(Gravity.CENTER_HORIZONTAL);
+        noneFoundMsg.setGravity(Gravity.CENTER);
 
         FrameLayout container = (FrameLayout) findViewById(R.id.containerq);
         container.addView(noneFoundMsg);
