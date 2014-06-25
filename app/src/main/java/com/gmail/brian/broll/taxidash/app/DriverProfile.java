@@ -1,13 +1,11 @@
 package com.gmail.brian.broll.taxidash.app;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
@@ -31,7 +28,9 @@ import java.net.URL;
 /**
  * Created by Brian Broll on 5/15/14.
  */
-public class DriverProfile extends NavigationActivity{
+public class DriverProfile extends NavigationActivity implements LocationListener{
+    private static final long MIN_TIME_BW_UPDATES = 10000;
+    private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 0.2f;
     /*
      * This activity will show the driver information in a full panel.
      * It will show a "Start Ride" button which will allow the user
@@ -108,17 +107,43 @@ public class DriverProfile extends NavigationActivity{
         //Create a ride
         LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        double longitude = location.getLongitude();
-        double latitude = location.getLatitude();
-        Ride ride = new Ride(latitude, longitude);
+        Log.i("GPS", "LocationManager is null? " + (lm == null));
+        Log.i("GPS", "Location is null? " + (location == null));
+
+        Intent rateDriverIntent = new Intent(v.getContext(), RateDriver.class);
+        rateDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
+
+        if(location != null) {
+            double longitude = location.getLongitude();
+            double latitude = location.getLatitude();
+            Ride ride = new Ride(latitude, longitude);
+            rateDriverIntent.putExtra("Ride", ride);
+        }
 
         //Send intent to the rate driver activity
-        Intent rateDriverIntent = new Intent(v.getContext(), RateDriver.class);
         //Intent viewDriverIntent = new Intent(v.getContext(), FareEstimator.class);
-        rateDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
-        rateDriverIntent.putExtra("Ride", ride);
         Log.i("ON PROFILE EXIT", "Driver image is " + driver.getImageURL());
         startActivity(rateDriverIntent);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 
     private class setDriverImage extends AsyncTask<Driver, Void, Void> {
@@ -133,11 +158,11 @@ public class DriverProfile extends NavigationActivity{
             for (int i = 0; i < params.length; i++) {
                 Driver drvr = params[i];
                 int beaconId = driver.getBeaconId();
-                String endpoint = CONSTANTS.SERVER_ADDRESS + "/mobile/" + beaconId + ".json";
+                String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/" + beaconId + ".json";
 
                 //Get the image for the driver
                 try {
-                    URL url = new URL(CONSTANTS.SERVER_ADDRESS + "/mobile/images/drivers/" + beaconId + ".json");
+                    URL url = new URL(CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/images/drivers/" + beaconId + ".json");
                     HttpURLConnection connection = (HttpURLConnection) url
                             .openConnection();
                     connection.setDoInput(true);
@@ -178,6 +203,68 @@ public class DriverProfile extends NavigationActivity{
                 }
             }
         }
+    }
+
+    public Location getLocation() {
+        LocationManager locationManager;
+        boolean isGPSEnabled, isNetworkEnabled;
+        double latitude, longitude;
+        Location location = null;
+
+        try {
+            locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+            // getting GPS status
+            isGPSEnabled = locationManager
+                    .isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+            // getting network status
+            isNetworkEnabled = locationManager
+                    .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+            if (!isGPSEnabled && !isNetworkEnabled) {
+                // no network provider is enabled
+            } else {
+                //this.canGetLocation = true;
+                if (isNetworkEnabled) {
+                    locationManager.requestLocationUpdates(
+                            LocationManager.NETWORK_PROVIDER,
+                            MIN_TIME_BW_UPDATES,
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                    Log.d("Network", "Network Enabled");
+                    if (locationManager != null) {
+                        location = locationManager
+                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                        }
+                    }
+                }
+                // if GPS Enabled get lat/long using GPS Services
+                if (isGPSEnabled) {
+                    if (location == null) {
+                        locationManager.requestLocationUpdates(
+                                LocationManager.GPS_PROVIDER,
+                                MIN_TIME_BW_UPDATES,
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                        Log.d("GPS", "GPS Enabled");
+                        if (locationManager != null) {
+                            location = locationManager
+                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            if (location != null) {
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return location;
     }
 
 }

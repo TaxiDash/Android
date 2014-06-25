@@ -19,6 +19,10 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,13 +34,14 @@ import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.view.CardListView;
 
 
-public class LocationFinder extends NavigationActivity {
+public class LocationFinder extends NavigationActivity implements GoogleMap.OnMarkerClickListener {
     private Driver currentDriver = null;
     private Geocoder geocoder;
     private Ride trip = null;
     private GoogleMap map;
     private Card.OnCardClickListener selectLocation = null;
     private List<Card> searchResults = new ArrayList<Card>();
+    private List<Marker> markers = new ArrayList<Marker>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,10 @@ public class LocationFinder extends NavigationActivity {
         if(geocoder == null){
             geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         }
+
+        //Get the map
+        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        map.setOnMarkerClickListener(this);
 
         //Create new trip
         LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
@@ -135,8 +144,10 @@ public class LocationFinder extends NavigationActivity {
         try {
             List<Address> results = geocoder.getFromLocationName(query, 7, bottom, left, top, right);
             Log.i("GEOCODER", "FOUND " + results.size() + " RESULTS");
+            markers.clear();
             for(Address result : results) {
-                addCard(result);
+                //addCard(result);
+                addPin(result);
             }
             //Set up the card list
             CardListView list = (CardListView) findViewById(R.id.search_results);
@@ -145,6 +156,13 @@ public class LocationFinder extends NavigationActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void addPin(Address addr){
+        markers.add(this.map.addMarker(new MarkerOptions()
+                .position(new LatLng(addr.getLatitude(), addr.getLongitude()))
+                .title(addr.getFeatureName())));
+
     }
 
     private void addCard(Address addr){
@@ -157,4 +175,16 @@ public class LocationFinder extends NavigationActivity {
 
     }
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        LatLng endpoint = marker.getPosition();
+        trip.setEndPoint(endpoint.latitude, endpoint.longitude);
+
+        //Move to the new activity
+        Intent mapTrip = new Intent(getApplicationContext(), FareEstimator.class);
+        mapTrip.putExtra("Driver", (Parcelable) currentDriver);
+        mapTrip.putExtra("Ride", trip);
+        startActivity(mapTrip);
+        return true;
+    }
 }

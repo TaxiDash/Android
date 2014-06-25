@@ -1,6 +1,5 @@
 package com.gmail.brian.broll.taxidash.app;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -107,7 +106,7 @@ public class LocalCompanyList extends NavigationActivity{
             Company[] companies = null;
             //Get the contact info for the companies
             Log.i(COMPANY_TAG, "ABOUT TO REQUEST COMPANY CONTACT INFO");
-            String endpoint = CONSTANTS.SERVER_ADDRESS + "/mobile/companies/contact.json";
+            String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/companies/contact.json";
 
             try {
                 HttpClient http = new DefaultHttpClient();
@@ -163,7 +162,7 @@ public class LocalCompanyList extends NavigationActivity{
 
                         Log.i("COMPANY RETRIEVAL", jsonObject.getString("name") + "'s phone number is " + jsonObject.getString("phone_number"));
                         //Get the image
-                        URL url = new URL(CONSTANTS.SERVER_ADDRESS + "/mobile/images/companies/" + company.getId() + ".json");
+                        URL url = new URL(CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/images/companies/" + company.getId() + ".json");
                         HttpURLConnection connection = (HttpURLConnection) url
                                 .openConnection();
                         connection.setDoInput(true);

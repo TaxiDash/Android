@@ -76,7 +76,7 @@ public class FavoriteDriverList extends NavigationActivity {
             callDriver(driver);
         }
     };
-    String favFileName = CONSTANTS.CITY_NAME + "-favorites.dat";
+    String favFileName = CONSTANTS.CURRENT_SERVER.getCity() + CONSTANTS.CURRENT_SERVER.getState() + "-favorites.dat";
 
     /*
      * This activity will retrieve the user's list of favorite

@@ -45,5 +45,7 @@
     <string name="defaultFare">$0.00</string>
     <string name="defaultAddress">NO ADDRESS FOUND</string>
     <string name="defaultFeatureName">UNKNOWN</string>
+    <string name="title_activity_taxi_dash">TaxiDash</string>
+    <string name="splash_message">TaxiDash</string>
 
 </resources>

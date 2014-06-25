@@ -1,6 +1,5 @@
 package com.gmail.brian.broll.taxidash.app;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -10,18 +9,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.http.HttpEntity;
@@ -40,7 +36,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +53,6 @@ import com.radiusnetworks.ibeacon.Region;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
-import it.gmariotti.cardslib.library.internal.CardThumbnail;
 import it.gmariotti.cardslib.library.view.CardListView;
 
 
@@ -181,7 +175,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
             //TODO
             progress = new ProgressDialog(this);
             progress.setTitle("Searching...");
-            progress.setMessage("Please wait while we look up info on any nearby cab drivers...");
+            progress.setMessage("Please wait while we find nearby cabs...");
             progress.show();
         }
     }
@@ -241,7 +235,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                     iBM.bind(this);
                     progress = new ProgressDialog(this);
                     progress.setTitle("Searching...");
-                    progress.setMessage("Please wait while we look up info on any nearby cab drivers...");
+                    progress.setMessage("Please wait while we find nearby cabs...");
                     progress.show();
                 }else{
                     //Add warning message
@@ -397,7 +391,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
             JSONObject[] result = new JSONObject[beaconIds.length];
             for(int i = 0; i < beaconIds.length; i++) {
                 beaconId = beaconIds[i];
-                String endpoint = CONSTANTS.SERVER_ADDRESS + "/mobile/" + beaconId + ".json";
+                String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/" + beaconId + ".json";
                 Log.i("REQUESTING CAB", "AT " + endpoint);
 
                 try {
@@ -441,7 +435,6 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                 //Get the image for the driver
                 /*
                 try {
-                    URL url = new URL(CONSTANTS.SERVER_ADDRESS + "/mobile/images/drivers/" + beaconId + ".json");
                     HttpURLConnection connection = (HttpURLConnection) url
                             .openConnection();
                     connection.setDoInput(true);
@@ -486,7 +479,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
 
         private String getCompanyLogo(Integer companyId){
             try {
-                URL url = new URL(CONSTANTS.SERVER_ADDRESS + "/mobile/images/companies/" + companyId + ".json");
+                URL url = new URL(CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/images/companies/" + companyId + ".json");
                 HttpURLConnection connection = (HttpURLConnection) url
                         .openConnection();
                 connection.setDoInput(true);

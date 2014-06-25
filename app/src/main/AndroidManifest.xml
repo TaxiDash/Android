@@ -44,11 +44,6 @@
         <activity
             android:name="com.gmail.brian.broll.taxidash.app.NearbyCabList"
             android:label="@string/title_activity_nearby_cab_list" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.gmail.brian.broll.taxidash.app.DriverProfile"
@@ -73,6 +68,16 @@
         <activity
             android:name="com.gmail.brian.broll.taxidash.app.LocationFinder"
             android:label="@string/title_activity_location_finder" >
+        </activity>
+        <activity
+            android:name="com.gmail.brian.broll.taxidash.app.TaxiDash"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_taxi_dash"
+            android:theme="@style/FullscreenTheme" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

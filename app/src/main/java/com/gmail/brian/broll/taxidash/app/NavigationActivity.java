@@ -44,7 +44,11 @@ public class NavigationActivity extends Activity {
 
         //Create the header for the drawer
         TextView header = new TextView(this);
-        header.setText(CONSTANTS.CITY_NAME);
+        if (CONSTANTS.CURRENT_SERVER != null) {
+            header.setText(CONSTANTS.CURRENT_SERVER.getCity() + ", " + CONSTANTS.CURRENT_SERVER.getState());
+        } else {
+            header.setText("Loading...");
+        }
         header.setTextSize(24);
         header.setGravity(Gravity.CENTER_HORIZONTAL);
         header.setTextColor(Color.WHITE);

@@ -190,7 +190,7 @@ public class RateDriver extends NavigationActivity {
         @Override
         protected Integer doInBackground(Void... params) {
 
-            String endpoint = CONSTANTS.SERVER_ADDRESS + "/ratings.json";
+            String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + "/ratings.json";
             int responseCode = -1;
 
             try {
