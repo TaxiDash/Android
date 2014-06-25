@@ -3,7 +3,7 @@
 
     <string name="app_name">TaxiDash</string>
     <string name="hello_world">Hello world!</string>
-    <string name="emptyString"></string>
+    <string name="emptyString"> </string>
     <string name="ratingLabel">Driver Rating</string>
     <string name="defaultRating">NO RATING</string>
     <string name="defaultDriverName">NO DRIVER NAME</string>
@@ -19,7 +19,7 @@
     <string name="action_settings">Settings</string>
     <string name="ratingRequest">How would you rate your driver?</string>
     <string name="commentsLabel">Comments:</string>
-    <string name="defaultComment">Please leave your number if you would like to be called back.</string>
+    <string name="defaultComment">Please leave your number or email if you would like to be contacted.</string>
     <string name="submitRide">Submit anonymous ride info?</string>
     <string name="submitRatingLabel">Rate</string>
     <string name="title_activity_favorite_driver_list">Favorite Drivers</string>
