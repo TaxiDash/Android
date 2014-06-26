@@ -208,13 +208,13 @@ public class FavoriteDriverList extends NavigationActivity {
 
      @Override
     protected void onDestroy(){
-        saveFavoriteDrivers();
+        Utils.saveFavoriteDrivers(this.getApplicationContext(), favoriteDrivers);
         super.onDestroy();
     }
 
     @Override
     public void onPause(){
-        saveFavoriteDrivers();
+        Utils.saveFavoriteDrivers(this.getApplicationContext(), favoriteDrivers);
         super.onPause();
     }
     @Override
@@ -253,24 +253,6 @@ public class FavoriteDriverList extends NavigationActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void saveFavoriteDrivers() {
-        //Write the favorite drivers array to file
-        File favoriteDriverFile = new File(getFilesDir(), favFileName);
-        try {
-
-            Log.i("Favorite Driver List", "About to save drivers to " + favoriteDriverFile.getPath());
-            FileOutputStream fileOutputStream = new FileOutputStream(favoriteDriverFile.getPath());
-            ObjectOutputStream out = new ObjectOutputStream(fileOutputStream);
-            out.writeObject(favoriteDrivers);
-            out.flush();
-            out.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void addDriver(Driver driver){
         if(!favoriteDrivers.contains(driver)) {
             favoriteDrivers.add(driver);
@@ -285,7 +267,7 @@ public class FavoriteDriverList extends NavigationActivity {
         card.setSwipeable(false);//TODO swiping should remove driver from list
         card.setOnSwipeListener(swipeListener);
         displayedCards.add(card);
-        saveFavoriteDrivers();
+        Utils.saveFavoriteDrivers(this.getApplicationContext(), favoriteDrivers);
     }
 
     private void removeDriver(DriverCard card){

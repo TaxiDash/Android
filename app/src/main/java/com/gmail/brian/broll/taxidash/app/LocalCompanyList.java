@@ -72,9 +72,6 @@ public class LocalCompanyList extends NavigationActivity{
         content.addView(contentView, 0);
 
         //Creating loading notification
-        //TODO
-
-        //Set searchingMsg
         TextView searchingMsg = new TextView(this);
         searchingMsg.setText("Getting company info...");
         searchingMsg.setTextSize(24);
@@ -84,30 +81,40 @@ public class LocalCompanyList extends NavigationActivity{
         LinearLayout container = (LinearLayout) findViewById(R.id.company_list_container);
         container.addView(searchingMsg);
 
+        //Load companies
+        companies = Utils.loadLocalCompanies(this.getApplicationContext());
+        if(companies != null){
+            Log.i("Loading companies", "Loaded " + companies.size() + " companies");
+        }else {
+            Log.i("Loading companies", "Companies are null...");
+        }
+
+        if(companies != null) {
+            Log.i("Company Loading", "Loaded Companies from file");
+            createCompanyCards();
+        }else{
+            companies = new ArrayList<Company>();
+        }
+
         new createCompanyList().execute();
     }
 
-    private LinearLayout createCompanyPanel(Company company){
+    private void createCompanyCards(){
+        CardListView list = (CardListView) findViewById(R.id.company_list);
+        List<Card> displayedCards = new ArrayList<Card>();
 
-        LinearLayout panel = new LinearLayout(this);
-        //panel.setOrientation();//Set to horizontal
+        //Add cards to the list
+        for(Company company : companies){
+            CompanyCard card = new CompanyCard(getApplicationContext(), company);
 
-        //Add the company to the list
-        Log.i("COMPANY_LIST", "ADDING COMPANY " + company.getName() + " to the list ");
-        TextView rating = new TextView(this);
-        rating.setText(company.getRating() + "");
-        rating.setTextSize(25);
-        panel.addView(rating);
+            card.setBackgroundResource(new ColorDrawable(getResources().getColor(R.color.cardColor)));
+            card.setOnClickListener(callCompany);
+            displayedCards.add(card);
+        }
 
-        TextView name = new TextView(this);
-        name.setText(company.getName() + "");
-        name.setTextSize(25);
-        panel.addView(name);
-
-        //Attach calling functionality
-        panel.setId(company.getId());
-
-        return panel;
+        CardArrayAdapter adapter = new CardArrayAdapter(getApplicationContext(), displayedCards);
+        list.setAdapter(adapter);
+        Log.i(COMPANY_TAG, "Finished adding cards (" + displayedCards.size() + ")");
     }
 
     private class createCompanyList extends AsyncTask<Void, Void, Void> {
@@ -141,21 +148,10 @@ public class LocalCompanyList extends NavigationActivity{
         }
 
         protected void onPostExecute(Void result){
-            CardListView list = (CardListView) findViewById(R.id.company_list);
-            List<Card> displayedCards = new ArrayList<Card>();
-
-            //Add cards to the list
-            for(Company company : companies){
-                CompanyCard card = new CompanyCard(getApplicationContext(), company);
-
-                card.setBackgroundResource(new ColorDrawable(getResources().getColor(R.color.cardColor)));
-                card.setOnClickListener(callCompany);
-                displayedCards.add(card);
+            if(companies != null) {
+                createCompanyCards();
             }
-
-            CardArrayAdapter adapter = new CardArrayAdapter(getApplicationContext(), displayedCards);
-            list.setAdapter(adapter);
-            Log.i(COMPANY_TAG, "Finished adding cards (" + displayedCards.size() + ")");
+            Utils.saveLocalCompanies(getApplicationContext(), companies);
         }
 
         private void createCompaniesFromJSON(JSONArray json){
@@ -165,11 +161,14 @@ public class LocalCompanyList extends NavigationActivity{
                 for (int i = 0; i < json.length(); i++) {
                     try {
                         //Create each company
-                        jsonObject = (JSONObject) json.get(i);
+                        jsonObject = json.getJSONObject(i);
+                        Log.i("Creating company", "" + jsonObject);
                         company = new Company(jsonObject.getInt("id"),
                                               jsonObject.getString("name"),
                                               (float) jsonObject.getDouble("average_rating"),
                                               jsonObject.getString("phone_number"));
+
+                        Log.i("Company INFO: ", company.getName() + " " + company.getPhoneNumber());
 
                         Log.i("COMPANY RETRIEVAL", jsonObject.getString("name") + "'s phone number is " + jsonObject.getString("phone_number"));
                         //Get the image

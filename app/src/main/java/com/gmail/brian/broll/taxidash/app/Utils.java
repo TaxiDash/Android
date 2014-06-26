@@ -21,9 +21,13 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Brian Broll on 5/26/14.
@@ -34,7 +38,7 @@ import java.util.ArrayList;
 public class Utils {
 
     //Loading TaxiDash constants
-    public static class setTaxiDashConstants extends AsyncTask<Location, Void, Void>{
+    public static class initializeTaxiDashConstants extends AsyncTask<Location, Void, Void>{
 
         @Override
         protected Void doInBackground(Location... params) {
@@ -155,32 +159,94 @@ public class Utils {
          return response;
     }
 
+    /* * * * * * * Saving/retrieving favorite drivers to/from file * * * * * * */
+
+    //Convenience methods for loading
     public static ArrayList<Driver> loadFavoriteDrivers(Context context) {
         //Load the favorite drivers from file
         //File is saved as CITY_NAME-favorites.dat
-        ArrayList<Driver> favoriteDrivers;
-        String favFileName = CONSTANTS.CURRENT_SERVER.getCity() +
-                CONSTANTS.CURRENT_SERVER.getState() + "-favorites.dat";
+        ArrayList<Driver> favoriteDrivers = null;
 
-        File favoriteDriverFile = new File(context.getFilesDir(), favFileName);
+        File favoriteDriverFile = new File(context.getFilesDir(), getFavoriteDriverFileName());
 
         if (favoriteDriverFile.exists()) {
-            try {
-                FileInputStream inputStream = new FileInputStream(favoriteDriverFile.getPath());
-                ObjectInputStream in = new ObjectInputStream(inputStream);
-                favoriteDrivers = (ArrayList<Driver>) in.readObject();
+            favoriteDrivers = (ArrayList<Driver>) loadObjectFromFile(favoriteDriverFile);
+        }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                favoriteDrivers = new ArrayList<Driver>();//Anything breaks, reinitialize!
-                Log.i("LOADING FAV DRIVERS", "INITIALIZING FAV DRIVERS");
-            }
-
-        } else {//No favorite drivers yet!
+        if(favoriteDrivers == null) {//No favorite drivers yet!
             favoriteDrivers = new ArrayList<Driver>();
             Log.i("LOADING FAV DRIVERS", "INITIALIZING FAV DRIVERS");
         }
 
         return favoriteDrivers;
     }
+
+    public static boolean haveStoredLocalCompanies(Context context){
+        File companyFile = new File(context.getFilesDir(), getLocalCompaniesFileName());
+
+        return companyFile.exists();
+    }
+
+    public static ArrayList<Company> loadLocalCompanies(Context context){
+        File companyFile = new File(context.getFilesDir(), getLocalCompaniesFileName());
+
+        return (ArrayList<Company>) loadObjectFromFile(companyFile);
+    }
+
+    public static Object loadObjectFromFile(File file){
+        Object object = null;
+
+        try {
+            FileInputStream inputStream = new FileInputStream(file.getPath());
+            ObjectInputStream in = new ObjectInputStream(inputStream);
+            object = in.readObject();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+
+    //Convenience methods for saving
+    public static void saveFavoriteDrivers(Context context, Object favDrivers){
+        saveData(context, getFavoriteDriverFileName(), favDrivers);
+    }
+
+    public static void saveLocalCompanies(Context context, List<Company> companies){
+        Log.i("Saving Companies", "Saving " + companies.size() + " companies to file");
+        saveData(context, getLocalCompaniesFileName(), companies);
+    }
+
+    public static void saveData(Context context, String filename, Object data) {
+        //Write the favorite drivers array to file
+        File favoriteDriverFile = new File(context.getFilesDir(), filename);
+        try {
+
+            Log.i("Saving Object", "About to save object to " + favoriteDriverFile.getPath());
+            FileOutputStream fileOutputStream = new FileOutputStream(favoriteDriverFile.getPath());
+            ObjectOutputStream out = new ObjectOutputStream(fileOutputStream);
+            out.writeObject(data);
+            out.flush();
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String getFavoriteDriverFileName(){
+        return CONSTANTS.CURRENT_SERVER.getCity() +
+                CONSTANTS.CURRENT_SERVER.getState() + "-favorites.dat";
+    }
+
+    private static String getLocalCompaniesFileName(){
+        return CONSTANTS.CURRENT_SERVER.getCity() +
+                CONSTANTS.CURRENT_SERVER.getState() + "-companies.dat";
+    }
+
+    //Save to TEMP_DIR
+    //driver images
+    //TODO
+    //Load driver info
 }

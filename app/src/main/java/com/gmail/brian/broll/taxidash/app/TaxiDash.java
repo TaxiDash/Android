@@ -73,7 +73,7 @@ public class TaxiDash extends Activity implements GooglePlayServicesClient.Conne
         Log.e("Location Client", "Location client failed");
     }
 
-    private class InitializeConstants extends Utils.setTaxiDashConstants {
+    private class InitializeConstants extends Utils.initializeTaxiDashConstants {
 
         @Override
         protected Void doInBackground(Location... params){

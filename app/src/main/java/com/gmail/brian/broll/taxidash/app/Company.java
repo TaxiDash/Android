@@ -7,11 +7,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * Created by Brian Broll on 5/16/14.
  */
-public class Company implements Comparable, Parcelable{
+public class Company implements Serializable, Comparable, Parcelable{
     private int id = -1;
     private String logo = null;
     private String name = null;
