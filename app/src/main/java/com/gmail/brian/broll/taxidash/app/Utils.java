@@ -1,8 +1,11 @@
 package com.gmail.brian.broll.taxidash.app;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.google.android.gms.location.LocationClient;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -20,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -32,15 +34,14 @@ import java.util.ArrayList;
 public class Utils {
 
     //Loading TaxiDash constants
-    public static class setTaxiDashConstants extends AsyncTask<Void, Void, Void>{
+    public static class setTaxiDashConstants extends AsyncTask<Location, Void, Void>{
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(Location... params) {
             JSONObject servers = null;
-            double latitude = 36.159,
-                   longitude = -86.78219;
-            //Get the location of the phone
-            //TODO
+            double latitude = params[0].getLatitude(),
+                   longitude = params[0].getLongitude();
+
             //Request the nearest TaxiDash server
             String endpoint = "/getNearbyTaxiDash?latitude=" + latitude + "&longitude=" + longitude;
             servers = makeRequestToRegistrationServer(endpoint);

@@ -9,8 +9,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -60,7 +62,6 @@ public class LocalCompanyList extends NavigationActivity{
      * the user to touch to call.
      */
 
-    //TODO:
     //Consider adding companies one at a time...
 
     protected void onCreate(Bundle savedInstanceState){
@@ -72,6 +73,16 @@ public class LocalCompanyList extends NavigationActivity{
 
         //Creating loading notification
         //TODO
+
+        //Set searchingMsg
+        TextView searchingMsg = new TextView(this);
+        searchingMsg.setText("Getting company info...");
+        searchingMsg.setTextSize(24);
+        searchingMsg.setTextColor(getResources().getColor(R.color.lightText));
+        searchingMsg.setGravity(Gravity.CENTER);
+
+        LinearLayout container = (LinearLayout) findViewById(R.id.company_list_container);
+        container.addView(searchingMsg);
 
         new createCompanyList().execute();
     }
@@ -176,7 +187,6 @@ public class LocalCompanyList extends NavigationActivity{
                         company.setLogo(path.getAbsolutePath());
                         companies.add(company);
 
-                        //Add company number to the "phone book"
                     } catch (JSONException e) {
                         //Handle a server address failure
                         //TODO
