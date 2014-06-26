@@ -46,6 +46,7 @@ import it.gmariotti.cardslib.library.view.CardListView;
  */
 public class LocalCompanyList extends NavigationActivity{
     private List<Company> companies = new ArrayList<Company>();
+    List<Company> updatedCompanies;
     private String COMPANY_TAG = "COMPANY LIST";
     private Card.OnCardClickListener callCompany = new Card.OnCardClickListener() {
         @Override
@@ -117,44 +118,23 @@ public class LocalCompanyList extends NavigationActivity{
         Log.i(COMPANY_TAG, "Finished adding cards (" + displayedCards.size() + ")");
     }
 
-    private class createCompanyList extends AsyncTask<Void, Void, Void> {
+    private class createCompanyList extends Utils.GetLocalCompanies {
 
         @Override
-        protected Void doInBackground(Void... params) {
-            Company[] companies = null;
-            //Get the contact info for the companies
-            Log.i(COMPANY_TAG, "ABOUT TO REQUEST COMPANY CONTACT INFO");
-            String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/companies/contact.json";
-
-            try {
-                HttpClient http = new DefaultHttpClient();
-                http.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
-
-                HttpGet req = new HttpGet(endpoint);
-                HttpResponse response = http.execute(req);
-                HttpEntity entity = response.getEntity();
-                String companyRaw = EntityUtils.toString(entity);
-                JSONObject companyContactInfo = new JSONObject(companyRaw);
-
-                JSONArray companiesJSON = companyContactInfo.getJSONArray("companies");
-                createCompaniesFromJSON(companiesJSON);
-
-            } catch (Exception e) {
-                //Add support for something breaking on the server
-                //This would mean we need to handle things gracefully
-                e.printStackTrace();
-            }
+        protected JSONArray doInBackground(Void... params) {
+            updatedCompanies = createCompaniesFromJSON(super.doInBackground(params));
             return null;
         }
 
-        protected void onPostExecute(Void result){
-            if(companies != null) {
+        protected void onPostExecute(JSONArray result){
+            if(companies == null) {
                 createCompanyCards();
             }
-            Utils.saveLocalCompanies(getApplicationContext(), companies);
+            Utils.saveLocalCompanies(getApplicationContext(), updatedCompanies);
         }
 
-        private void createCompaniesFromJSON(JSONArray json){
+        private List<Company> createCompaniesFromJSON(JSONArray json){
+            List<Company> result = new ArrayList<Company>();
             JSONObject jsonObject;
             Company company;
 
@@ -184,7 +164,7 @@ public class LocalCompanyList extends NavigationActivity{
                         saveImageToCache(path.getAbsolutePath(), image);
 
                         company.setLogo(path.getAbsolutePath());
-                        companies.add(company);
+                        result.add(company);
 
                     } catch (JSONException e) {
                         //Handle a server address failure
@@ -194,6 +174,7 @@ public class LocalCompanyList extends NavigationActivity{
                         e.printStackTrace();
                     }
                 }
+            return result;
         }
 
         private void saveImageToCache(String filename, Bitmap image) {

@@ -4,10 +4,12 @@ package com.gmail.brian.broll.taxidash.app;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -26,6 +28,12 @@ public class TaxiDash extends Activity implements GooglePlayServicesClient.Conne
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*
+        Typeface fontAwesome = Typeface.createFromAsset(getAssets(), "fontawesome-webfont.ttf");
+        TextView logo = (TextView) findViewById(R.id.splash_message);
+        logo.setTypeface(fontAwesome);
+        */
+
         ActionBar actionBar = getActionBar();
 
         if(actionBar != null) {
@@ -85,6 +93,9 @@ public class TaxiDash extends Activity implements GooglePlayServicesClient.Conne
             super.onPostExecute(result);
             if(++currentStatus == CAN_PROCEED) {
                 startNearbyCabs();
+            }else{
+                //start scanning for nearby cabs
+                //TODO
             }
         }
     }

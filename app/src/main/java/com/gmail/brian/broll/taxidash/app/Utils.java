@@ -5,8 +5,6 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.android.gms.location.LocationClient;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -36,6 +34,8 @@ import java.util.List;
  * by multiple classes
  */
 public class Utils {
+
+    /* * * * * * * Network Communications * * * * * * */
 
     //Loading TaxiDash constants
     public static class initializeTaxiDashConstants extends AsyncTask<Location, Void, Void>{
@@ -97,7 +97,6 @@ public class Utils {
                 //TODO
             }
 
-            //TODO
             return null;
         }
     }
@@ -136,11 +135,36 @@ public class Utils {
         }
     }
 
+    public abstract static class GetLocalCompanies extends AsyncTask<Void, Void, JSONArray>{
+
+        @Override
+        protected JSONArray doInBackground(Void... params) {
+            String path = "/mobile/companies/contact.json";
+            JSONObject companyContactInfo = makeRequestToTaxiDashServer(path);
+            try {
+                return companyContactInfo.getJSONArray("companies");
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    private static JSONObject makeRequestToTaxiDashServer(String path){
+        String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + path;
+        return makeRequestToServer(endpoint);
+    }
+
     private static JSONObject makeRequestToRegistrationServer(String path){
+        String endpoint = CONSTANTS.ROUTER_ADDRESS + path;
+        return makeRequestToServer(endpoint);
+    }
+
+    private static JSONObject makeRequestToServer(String endpoint){
         JSONObject response = null;
         String resString;
 
-        String endpoint = CONSTANTS.ROUTER_ADDRESS + path;
         HttpClient http = new DefaultHttpClient();
         http.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
 
@@ -158,6 +182,9 @@ public class Utils {
         }
          return response;
     }
+
+
+    /* * * * * * * END Network Communications * * * * * * */
 
     /* * * * * * * Saving/retrieving favorite drivers to/from file * * * * * * */
 
@@ -244,6 +271,8 @@ public class Utils {
         return CONSTANTS.CURRENT_SERVER.getCity() +
                 CONSTANTS.CURRENT_SERVER.getState() + "-companies.dat";
     }
+
+    /* * * * * * * END Saving/retrieving favorite drivers to/from file * * * * * * */
 
     //Save to TEMP_DIR
     //driver images
