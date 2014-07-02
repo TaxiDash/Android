@@ -10,6 +10,14 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    signingConfigs {
+        debug {
+            storeFile file("./taxidash_key.jks");
+            storePassword="password"
+            keyAlias="TaxiDash1"
+            keyPassword="password"
+        }
+    }
     buildTypes {
         release {
             runProguard false

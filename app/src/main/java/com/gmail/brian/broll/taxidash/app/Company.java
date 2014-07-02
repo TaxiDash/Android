@@ -64,7 +64,12 @@ public class Company implements Serializable, Comparable, Parcelable{
     @Override
     public int compareTo(Object otherDriver) {
         //Sort in ascending order of distance
-        return (int) (((Company) otherDriver).getRating() - this.getRating());
+        double difference = ((Company) otherDriver).getRating() - this.getRating();
+        int sortInt = 1;
+        if(difference < 0){
+            sortInt = -1;
+        }
+        return sortInt;
     }
 
     @Override

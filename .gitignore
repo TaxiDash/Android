@@ -28,3 +28,5 @@ proguard/
 
 #log files
 *.log
+
+*.jks

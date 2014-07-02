@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import it.gmariotti.cardslib.library.internal.Card;
@@ -42,6 +43,10 @@ import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.view.CardListView;
 
 /**
+ * This will get a list of local companies from the server
+ * sorted by rating. These will be presented in a list for
+ * the user to touch to call.
+ *
  * Created by Brian Broll on 5/17/14.
  */
 public class LocalCompanyList extends NavigationActivity{
@@ -57,13 +62,6 @@ public class LocalCompanyList extends NavigationActivity{
             startActivity(callIntent);
         }
     };
-    /*
-     * This will get a list of local companies from the server
-     * sorted by rating. These will be presented in a list for
-     * the user to touch to call.
-     */
-
-    //Consider adding companies one at a time...
 
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -127,9 +125,25 @@ public class LocalCompanyList extends NavigationActivity{
         }
 
         protected void onPostExecute(JSONArray result){
-            if(companies == null) {
+            //Sort the updatedCompanies list by rating
+            Collections.sort(updatedCompanies);
+
+            if (CONSTANTS.DEBUG){
+                String ratings = "";
+                for (int i = 0; i < updatedCompanies.size(); i++){
+                    ratings += updatedCompanies.get(i).getRating() + ", ";
+                }
+
+                ratings = "Ratings: " + ratings;
+                Utils.debugLogging(getApplicationContext(), ratings);
+                Log.i("Company Ratings", ratings);
+            }
+
+            if(companies == null || companies.size() == 0) {
+                companies = updatedCompanies;
                 createCompanyCards();
             }
+
             Utils.saveLocalCompanies(getApplicationContext(), updatedCompanies);
         }
 
