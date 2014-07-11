@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -29,14 +30,17 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +64,7 @@ public class FareEstimator extends NavigationActivity implements LocationListene
     private GoogleMap mMap;
     private Geocoder geocoder;
     private List<Marker> markers = new ArrayList<Marker>();
+    private Marker destinationMarker;
 
     //Location
     private LocationManager locationManager;
@@ -406,24 +411,40 @@ public class FareEstimator extends NavigationActivity implements LocationListene
     @Override
     public boolean onMarkerClick(Marker marker) {
         Utils.debugLogging(getApplicationContext(), marker.getTitle() + " has been clicked");
-        //Calculate route to this marker
-        //Prompt?
         LatLng start = new LatLng(ride.getStartLatitude(), ride.getStartLongitude());
         LatLng end = marker.getPosition();
+
+        //Calculate route to this marker
         new getDirections().execute(start, end);
+
+        //Move the window appropriately
+        double bottom = Math.min(start.latitude, end.latitude),
+               top = Math.max(start.latitude, end.latitude),
+               left = Math.min(start.longitude, end.longitude),
+               right = Math.max(start.longitude, end.longitude);
+
+        LatLngBounds viewBox = new LatLngBounds(new LatLng(bottom, left), new LatLng(top, right));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBox, VIEW_BOX_PADDING));
+
+        destinationMarker = marker;
+
         return true;
     }
 
-    private void displayEstimate(ArrayList<Double> fares){
-        //Display the estimated fares
-        //fares.get(n) is the estimate for (n+1) people
-        //TODO
+    private void displayEstimateAndMileage(double fare, double miles){
+        //Display the estimated fare
+        DecimalFormat moneyFormat = new DecimalFormat("#.##");
 
-        double fare = Math.round(fares.get(passengers-1)*100)/100;
+        Utils.debugLogging(getApplicationContext(), "About to display fare estimate");
+        //Toast.makeText(getApplicationContext(),
+                //passengers + " passengers: $" + fare, Toast.LENGTH_SHORT).show();
 
-        Toast.makeText(getApplicationContext(),
-                passengers + " passengers: $" + fare, Toast.LENGTH_SHORT).show();
-        if (ride == null) {
+        //destinationMarker.setTitle("Estimated Fare: $" + fare);
+        Bitmap title = new IconGenerator(this).makeIcon("Estimated Fare: $" + moneyFormat.format(fare)
+                + "\n" + moneyFormat.format(miles) + " miles");
+        destinationMarker.setIcon(BitmapDescriptorFactory.fromBitmap(title));
+
+        if (ride != null) {
             ride.setEstimateFare(fare);
         }
     }
@@ -436,6 +457,7 @@ public class FareEstimator extends NavigationActivity implements LocationListene
         @Override
         protected Void doInBackground(LatLng... params) {
             Log.i("Directions", "From " + params[0] + " to " + params[1]);
+            passengerCount = passengers;
             return super.doInBackground(params);
         }
 
@@ -445,11 +467,11 @@ public class FareEstimator extends NavigationActivity implements LocationListene
             Utils.debugLogging(getApplicationContext(), "distance is " + distanceValue + " miles");
             createDirectionsPath(directions);
 
-            if (fares == null || fares.size() == 0){
+            if (fare == -1){
                 Toast.makeText(getApplicationContext(), "Could not estimate fare.", Toast.LENGTH_SHORT).show();
             } else {
                 //If you received a fare estimation, display it
-                displayEstimate(fares);
+                displayEstimateAndMileage(fare, distanceValue);
             }
         }
     }

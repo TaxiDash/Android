@@ -516,12 +516,13 @@ public class Utils {
     }
 
     public abstract static class directionsCalculator extends AsyncTask<LatLng, Void, Void>{
+        protected int passengerCount = 1;
         protected int durationValue;
         protected String durationText;
         protected double distanceValue;
         protected String distanceText;
         protected List<LatLng> directions;
-        protected ArrayList<Double> fares = null;
+        protected double fare = -1;
         //protected
 
         @Override
@@ -542,16 +543,12 @@ public class Utils {
             //Get estimate fare from TaxiDash server
             String endpoint =  "/mobile/estimate_fare.json?origin="
                     + start.latitude + "," + start.longitude + "&destination=" + end.latitude
-                    + "," + end.longitude + "&distance=" + distanceValue + "&duration=" + durationValue;
+                    + "," + end.longitude + "&distance=" + distanceValue + "&duration=" + durationValue
+                    + "&passengerCount=" + passengerCount;
 
             try {
                 JSONObject response = makeRequestToTaxiDashServer(endpoint);
-                JSONArray faresArray = response.getJSONArray("fares");
-                fares = new ArrayList<Double>();
-
-                for(int i = 0; i < faresArray.length(); i++){
-                    fares.add(faresArray.optDouble(i));
-                }
+                fare = response.getDouble("fare");
 
             } catch (IOException e) {
                 e.printStackTrace();
