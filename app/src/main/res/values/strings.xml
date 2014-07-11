@@ -47,5 +47,6 @@
     <string name="defaultFeatureName">UNKNOWN</string>
     <string name="title_activity_taxi_dash">TaxiDash</string>
     <string name="splash_message">TaxiDash</string>
+    <string name="endRideLabel">End Ride</string>
 
 </resources>

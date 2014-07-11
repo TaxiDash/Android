@@ -1,5 +1,6 @@
 package com.gmail.brian.broll.taxidash.app;
 
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -23,6 +24,11 @@ public class Ride implements Parcelable {
     public Ride(double startLatitude, double startLongitude){
         this.startLatitude = startLatitude;
         this.startLongitude = startLongitude;
+    }
+
+    public Ride(Location location){
+        this.startLatitude = location.getLatitude();
+        this.startLongitude = location.getLongitude();
     }
 
     public Ride(Parcel source){

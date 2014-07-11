@@ -81,6 +81,10 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
      *      + Alert the user that the app will not be able to get nearby cabs if BT not supported
      */
 
+    private final String SEARCHING_MESSAGE = "Searching for nearby cabs...";
+    private final String NO_BLUETOOTH_MESSAGE = "Swipe from the left to call a cab company.";
+    private final String BLUETOOTH_OFF_MESSAGE = "Enable Bluetooth to search for cabs";
+
     Map<Integer, Driver> driverCache = new HashMap<Integer, Driver>();
     Map<Integer, Company> companyCache = new HashMap<Integer, Company>();
 
@@ -143,15 +147,6 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
             new File(CONSTANTS.TEMP).mkdir();
         }
 
-        //Set noneFoundMsg
-        noneFoundMsg = new TextView(this);
-        noneFoundMsg.setText("Searching for nearby taxis...");
-        noneFoundMsg.setTextSize(24);
-        noneFoundMsg.setTextColor(getResources().getColor(R.color.lightText));
-        noneFoundMsg.setGravity(Gravity.CENTER);
-
-        FrameLayout container = (FrameLayout) findViewById(R.id.containerq);
-        container.addView(noneFoundMsg);
 
         bAdaptor = BluetoothAdapter.getDefaultAdapter();
         if(bAdaptor == null){//bluetooth not supported on device
@@ -159,9 +154,24 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
             //cab info
             offerToCallCompany("Your device does not have bluetooth and " +
                     "will not be able to detect nearby cabs. ");
+            setBackgroundText(NO_BLUETOOTH_MESSAGE);
+
         }else{
             startBlueTooth();
         }
+    }
+
+    private void setBackgroundText(String text){
+        //Set noneFoundMsg
+        noneFoundMsg = new TextView(this);
+        //noneFoundMsg.setText;
+        noneFoundMsg.setText(text);
+        noneFoundMsg.setTextSize(24);
+        noneFoundMsg.setTextColor(getResources().getColor(R.color.lightText));
+        noneFoundMsg.setGravity(Gravity.CENTER);
+
+        FrameLayout container = (FrameLayout) findViewById(R.id.containerq);
+        container.addView(noneFoundMsg);
     }
 
     private void startBlueTooth(){
@@ -172,11 +182,12 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
         }else{
             iBM.bind(this);
             //Write this to the background...
-            //TODO
             progress = new ProgressDialog(this);
             progress.setTitle("Searching...");
             progress.setMessage("Please wait while we find nearby cabs...");
             progress.show();
+
+            setBackgroundText(SEARCHING_MESSAGE);
         }
     }
 
@@ -189,12 +200,14 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
     public void onPause(){
         //Don't scan while suspended
         iBM.unBind(this);
+        setBackgroundText("");
         super.onPause();
     }
 
     @Override
     public void onResume(){
         super.onResume();
+        //TODO
         //if((bAdaptor = BluetoothAdapter.getDefaultAdapter()) != null) {
             //startBlueTooth();
         //}
@@ -237,16 +250,21 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                     progress.setTitle("Searching...");
                     progress.setMessage("Please wait while we find nearby cabs...");
                     progress.show();
+
+                    setBackgroundText(SEARCHING_MESSAGE);
+
                 }else{
                     //Add warning message
                     offerToCallCompany("Without bluetooth you " +
                             "will not be able to detect nearby cabs. ");
+                    setBackgroundText(BLUETOOTH_OFF_MESSAGE);
                 }
                 break;
         }
     }
 
     protected void displayDriverInfo(){
+        //This method could certainly be optimized
         //Stop the waiting bar
         if(nearbyDrivers.size() > 0){
             if(progress != null) {
@@ -274,34 +292,36 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
             }
         }
 
-        Collections.sort(nearbyDriversClone);
-        Context context = this.getApplicationContext();
-        for(Integer nearbyDriverId : nearbyDriversClone){
+        for(Integer nearbyDriverId : nearbyDriversClone) {
             //Create the driver's card
             FrameLayout container = (FrameLayout) findViewById(R.id.containerq);
             container.removeView(noneFoundMsg);
 
-            if(displayedDrivers.indexOf(nearbyDriverId) == -1) { //Add the driver
-                DriverCard driverCard;
-                if (CONSTANTS.DEMO_MODE) {
-                    driverCard = new DriverCard(context);
-                } else {
-                    driverCard = new DriverCard(context, driverCache.get(nearbyDriverId));
-                }
-
-                driverCard.setClickListener(viewDriver);
-                driverCard.setBackgroundResource(new ColorDrawable(getResources().getColor(R.color.cardColor)));
-                //Adding the driver
+            if (displayedDrivers.indexOf(nearbyDriverId) == -1) { //Add the driver
                 displayedDrivers.add(nearbyDriverId);
-                displayedCards.add(driverCard);
-                beaconId2driverCard.put(nearbyDriverId, driverCard);
             }
         }
+        //Create a driver list to sort before creating cards
+        ArrayList<Driver> drivers = new ArrayList<Driver>();
+        for (Integer nearbyDriverId : displayedDrivers) {
+            drivers.add(driverCache.get(nearbyDriverId));
+        }
 
+        Collections.sort(drivers);
 
-        //TODO Find out how to remove cards from view
-        CardArrayAdapter adapter;
-        adapter = new CardArrayAdapter(context, displayedCards);
+        Context context = this.getApplicationContext();
+        for (Driver driver : drivers){
+            DriverCard driverCard;
+            driverCard = new DriverCard(context, driverCache.get(driver.getBeaconId()));
+
+            driverCard.setClickListener(viewDriver);
+            driverCard.setBackgroundResource(new ColorDrawable(getResources().getColor(R.color.cardColor)));
+            //Adding the driver
+            displayedCards.add(driverCard);
+            beaconId2driverCard.put(driver.getBeaconId(), driverCard);
+        }
+
+        CardArrayAdapter adapter = new CardArrayAdapter(context, displayedCards);
         list.setAdapter(adapter);
     }
 
@@ -322,7 +342,9 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
         alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 //if no...
-                progress.dismiss();
+                if(progress != null) {
+                    progress.dismiss();
+                }
             }
         });
 
@@ -332,6 +354,7 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
 
     @Override
     public void onIBeaconServiceConnect() {
+        Utils.debugLogging(getApplicationContext(), "iBeacon Service Connected");
         iBM.setRangeNotifier(new RangeNotifier() {
             @Override public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
                 //For each beacon in range, get the driver info
@@ -379,18 +402,18 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
         }
     }
 
-    private class getNearbyCabInfo extends AsyncTask<Integer[], Void, JSONObject[]>{
+    private class getNearbyCabInfo extends AsyncTask<Integer, Void, JSONObject[]>{
 
         @Override
-        protected JSONObject[] doInBackground(Integer[]... params) {
+        protected JSONObject[] doInBackground(Integer... params) {
             //Given the beaconIds, get the driver info
-            Integer[] beaconIds = params[0];//Only grab the first one FIXME
-            Log.i("NETWORK STUFF", "FOUND " + beaconIds.length + " BEACONS IN NETWORK SECTION");
+            Log.i("NETWORK STUFF", "FOUND " + params.length + " BEACONS IN NETWORK SECTION");
+            //Utils.debugLogging(getApplicationContext(), "FOUND " + params.length + " BEACON(S)");
             String driverInfo;
             Integer beaconId;
-            JSONObject[] result = new JSONObject[beaconIds.length];
-            for(int i = 0; i < beaconIds.length; i++) {
-                beaconId = beaconIds[i];
+            JSONObject[] result = new JSONObject[params.length];
+            for(int i = 0; i < params.length; i++) {
+                beaconId = params[i];
                 String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/" + beaconId + ".json";
                 Log.i("REQUESTING CAB", "AT " + endpoint);
 
@@ -425,11 +448,21 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                             result[i].getString("phone_number"),
                             result[i].getBoolean("valid")));
 
+                    //Check if we already have an image for the given driver
+                    String imagePath = CONSTANTS.TEMP + beaconId + ".png";
+                    File temp = new File(imagePath);
+                    if (temp.exists()){
+                        //Check to see that the file is a Bitmap
+                        //TODO
+                        driverCache.get(beaconId).setImage(imagePath);
+                    }
+
                     nearbyDrivers.add(beaconId);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     Log.e("NO DRIVER ERROR", "No driver with beacon id " + beaconId);
+                    //Utils.debugLogging(getApplicationContext(), "No driver with beacon id: " + beaconId);
                     e.printStackTrace();
                 }
                 //Get the image for the driver

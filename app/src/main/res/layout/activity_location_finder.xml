@@ -1,37 +1,33 @@
-<LinearLayout
+<RelativeLayout
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:layout_gravity="center_horizontal"
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <TextView
+
+    <!--
+    <EditText
+        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/search_header"
-        android:id="@+id/search_header"
-        android:layout_centerHorizontal="true"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_weight="1"
         android:gravity="center_horizontal"
-        android:textSize="25sp"
-        android:layout_alignParentTop="true"/>
-    <LinearLayout
+        android:layout_gravity="center_horizontal"
+        android:hint="@string/search_header"
+        android:id="@+id/search"/>
+        -->
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1"
-            android:id="@+id/search"
-            android:layout_below="@id/search_header"/>
-
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:map="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/map"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:name="com.google.android.gms.maps.MapFragment"
-            map:mapType="normal"/>
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:name="com.google.android.gms.maps.MapFragment"
+        map:mapType="normal"/>
 
         <!--<SearchView
             android:layout_width="wrap_content"
@@ -42,13 +38,5 @@
             android:layout_below="@id/search_header"
             android:layout_alignParentRight="true"></SearchView>
             -->
-    </LinearLayout>
-
-    <it.gmariotti.cardslib.library.view.CardListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/search"
-        android:id="@+id/search_results"
-        />
-</LinearLayout>
+</RelativeLayout>
 

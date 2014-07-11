@@ -78,7 +78,7 @@ public class NavigationActivity extends Activity {
                         nextActivity = new Intent(getApplicationContext(), FavoriteDriverList.class);
                         break;
                     case 4: //Fare Estimation
-                        nextActivity = new Intent(getApplicationContext(), LocationFinder.class);
+                        nextActivity = new Intent(getApplicationContext(), FareEstimator.class);
                         break;
                 }
 

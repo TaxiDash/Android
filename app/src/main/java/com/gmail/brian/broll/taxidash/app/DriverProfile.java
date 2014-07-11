@@ -1,6 +1,8 @@
 package com.gmail.brian.broll.taxidash.app;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,21 +28,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
+ * This activity will show the driver information in a full panel.
+ * It will show a "Start Ride" button which will allow the user
+ * to transition to another activity (fare estimator).
+ *
  * Created by Brian Broll on 5/15/14.
  */
 public class DriverProfile extends NavigationActivity implements LocationListener{
     private static final long MIN_TIME_BW_UPDATES = 10000;
     private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 0.2f;
-    /*
-     * This activity will show the driver information in a full panel.
-     * It will show a "Start Ride" button which will allow the user
-     * to transition to another activity (fare estimator).
-     */
 
     private String DRIVER_PROFILE = "DRIVER PROFILE";
     private Driver driver;
 
-        @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LayoutInflater inflater = (LayoutInflater) this
@@ -87,7 +88,7 @@ public class DriverProfile extends NavigationActivity implements LocationListene
         }
 
         if(driver.getImage() == null) {
-            new setDriverImage().execute(driver);
+            new setDriverImage().execute();
         }else{
             updateDriverImage();
         }
@@ -107,23 +108,59 @@ public class DriverProfile extends NavigationActivity implements LocationListene
         //Create a ride
         LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        double longitude = -181;
+        double latitude = -181;
+
         Log.i("GPS", "LocationManager is null? " + (lm == null));
         Log.i("GPS", "Location is null? " + (location == null));
 
-        Intent rateDriverIntent = new Intent(v.getContext(), RateDriver.class);
-        rateDriverIntent.putExtra("Driver", (android.os.Parcelable) driver);
-
         if(location != null) {
-            double longitude = location.getLongitude();
-            double latitude = location.getLatitude();
-            Ride ride = new Ride(latitude, longitude);
-            rateDriverIntent.putExtra("Ride", ride);
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
         }
+
+        final Ride ride = new Ride(latitude, longitude);
 
         //Send intent to the rate driver activity
         //Intent viewDriverIntent = new Intent(v.getContext(), FareEstimator.class);
         Log.i("ON PROFILE EXIT", "Driver image is " + driver.getImageURL());
-        startActivity(rateDriverIntent);
+
+        //Prompt to estimate fare
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Estimate Fare?");
+        alert.setMessage("Would you like to estimate your fare?");
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //Start fare estimator
+                Intent intent = new Intent(getApplicationContext(), FareEstimator.class);
+                intent.putExtra("Driver", (android.os.Parcelable) driver);
+                if (ride.getStartLatitude() != -181 && ride.getStartLongitude() != -181){
+                    //Then we could get the ride info
+                    intent.putExtra("Ride", ride);
+                }
+                startActivity(intent);
+
+            }
+        });
+
+        alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //Start rating page
+                Intent intent = new Intent(getApplicationContext(), RateDriver.class);
+                intent.putExtra("Driver", (android.os.Parcelable) driver);
+                if (ride.getStartLatitude() != -181 && ride.getStartLongitude() != -181){
+                    //Then we could get the ride info
+                    intent.putExtra("Ride", ride);
+                }
+                startActivity(intent);
+            }
+        });
+
+        alert.show();
+
+
     }
 
     @Override
@@ -146,40 +183,32 @@ public class DriverProfile extends NavigationActivity implements LocationListene
 
     }
 
-    private class setDriverImage extends AsyncTask<Driver, Void, Void> {
+    private class setDriverImage extends AsyncTask<Void, Void, Void> {
         /*
          * This should probably be moved to the main screen and
          * only done if the driver's image is null
          */
 
         @Override
-        protected Void doInBackground(Driver... params) {
-            //Given the beaconIds, get the driver info
-            for (int i = 0; i < params.length; i++) {
-                Driver drvr = params[i];
-                int beaconId = driver.getBeaconId();
-                String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/" + beaconId + ".json";
+        protected Void doInBackground(Void... params) {
+            //Get the current driver's image
+            int beaconId = driver.getBeaconId();
+            String endpoint = CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/images/drivers/"
+                    + beaconId + ".json";
 
-                //Get the image for the driver
-                try {
-                    URL url = new URL(CONSTANTS.CURRENT_SERVER.getAddress() + "/mobile/images/drivers/" + beaconId + ".json");
-                    HttpURLConnection connection = (HttpURLConnection) url
-                            .openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream input = connection.getInputStream();
-                    Bitmap img = BitmapFactory.decodeStream(input);
+            //Get the image for the driver
+            try {
+                Bitmap image = Utils.getImageFromServer(endpoint);
 
-                    File path = new File(getCacheDir(), beaconId + ".png");
-                    saveImageToCache(path.getAbsolutePath(), img);
-                    drvr.setImage(path.getAbsolutePath());
-                    Log.i("DRIVER IMAGE", "SAVING IMAGE TO " + path.getAbsolutePath());
+                File path = new File(CONSTANTS.TEMP + beaconId + ".png");//Change this to CONSTANTS.TEMP?
+                saveImageToCache(path.getAbsolutePath(), image);
+                driver.setImage(path.getAbsolutePath());
+                Log.i("DRIVER IMAGE", "SAVING IMAGE TO " + path.getAbsolutePath());
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e("getBmpFromUrl error: ", e.getMessage().toString());
-                    return null;
-                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("getBmpFromUrl error: ", e.getMessage().toString());
+                //Utils.debugLogging(getApplicationContext(), "Could not get ");
             }
             return null;
         }

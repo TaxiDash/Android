@@ -22,9 +22,8 @@ import java.util.ArrayList;
 
 public class CONSTANTS {
     //Globally Static settings
-    public static final boolean DEMO_MODE = false;
+    public static final boolean DEMO_MODE = true;
     public static final String ROUTER_ADDRESS = "http://68.53.106.44:8888";
-    public static String TEMP = null;//Semi-persistent temp directory
 
     //Location specific static settings (semi-static)
     public static TaxiDashServer CURRENT_SERVER = null;
@@ -33,5 +32,10 @@ public class CONSTANTS {
     public static ArrayList<TaxiDashServer> ALL_SERVERS = new ArrayList<TaxiDashServer>();
 
     public static int MAX_RATING = 5;
+    public static boolean DEBUG = true;
+
+    //File locations
+    public static String TEMP = null;//Semi-persistent temp directory
+    public static String IMAGE_CACHE;
 
 }
