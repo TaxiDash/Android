@@ -147,7 +147,10 @@ public class FareEstimator extends NavigationActivity implements LocationListene
             }
 
             //location has been set. Update the ride info (this location is more precise)
-            ride.setStartLocation(location);
+            if (isInRide) {
+                ride.setStartLocation(location);
+                Utils.debugLogging(getApplicationContext(), "Adjusting ride start info...");
+            }
 
             //Set the mMap to this location
             if(location != null){
@@ -248,32 +251,34 @@ public class FareEstimator extends NavigationActivity implements LocationListene
             }
 
             for (Address result : results) {
-                addPin(result);
-                Log.i("RESULTS:", result.getLatitude() +", " + result.getLongitude() + "");
+                if (isRelevant(result)) {
+                    addPin(result);
+                    Log.i("RESULTS:", result.getLatitude() + ", " + result.getLongitude() + "");
 
-                //Find the new viewbox (to move the camera to)
-                maxLeft = Math.min(maxLeft, result.getLongitude());
-                maxRight = Math.max(maxRight, result.getLongitude());
-                maxTop = Math.max(maxTop, result.getLatitude());
-                maxBottom = Math.min(maxBottom, result.getLatitude());
+                    //Find the new viewbox (to move the camera to)
+                    maxLeft = Math.min(maxLeft, result.getLongitude());
+                    maxRight = Math.max(maxRight, result.getLongitude());
+                    maxTop = Math.max(maxTop, result.getLatitude());
+                    maxBottom = Math.min(maxBottom, result.getLatitude());
+                }
             }
 
-            //Don't get a wider view box than a 2x2 (in degrees) window
-            Log.d("VIEW BOX", "View box would be " + maxLeft + ", " + maxTop + ", "
-            + maxRight + ", " + maxBottom);
-            maxLeft = Math.max(maxLeft, left);
-            //maxRight = Math.min(maxRight, right);
-            //maxTop = Math.min(maxTop, top);
-            //maxBottom = Math.max(maxBottom, bottom);
-
             //If viewbox is not set correctly, move to it
-            //TODO
             LatLngBounds viewBox = new LatLngBounds(new LatLng(maxBottom, maxLeft), new LatLng(maxTop, maxRight));
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBox, VIEW_BOX_PADDING));
             Utils.debugLogging(getApplicationContext(), "View Box: " + maxBottom + ", " + maxLeft + "  " + maxTop + ", " + maxRight);
         } else {
             Toast.makeText(getApplicationContext(), "No results found", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private boolean isRelevant(Address address){
+        //Test if the address is relevant to the user
+        //For now, we will say it is relevant if it is
+        //within a 2 degree lat/long square
+
+        return Math.abs(ride.getStartLatitude() - address.getLatitude()) < 2 &&
+            Math.abs(ride.getStartLongitude() - address.getLongitude()) < 2;
     }
 
     private void drawSearchRegion(double left, double top, double right, double bottom){
@@ -468,7 +473,8 @@ public class FareEstimator extends NavigationActivity implements LocationListene
             createDirectionsPath(directions);
 
             if (fare == -1){
-                Toast.makeText(getApplicationContext(), "Could not estimate fare.", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Could not estimate fare.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Could not estimate fare: " + MSG, Toast.LENGTH_SHORT).show();
             } else {
                 //If you received a fare estimation, display it
                 displayEstimateAndMileage(fare, distanceValue);

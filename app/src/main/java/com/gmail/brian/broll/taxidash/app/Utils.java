@@ -523,6 +523,8 @@ public class Utils {
         protected String distanceText;
         protected List<LatLng> directions;
         protected double fare = -1;
+        //REMOVE
+        protected String MSG;
         //protected
 
         @Override
@@ -554,6 +556,7 @@ public class Utils {
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
+                MSG = e.getMessage();
             }
 
             return null;
