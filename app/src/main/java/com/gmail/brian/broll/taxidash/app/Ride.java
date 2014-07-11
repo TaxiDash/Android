@@ -55,6 +55,11 @@ public class Ride implements Parcelable {
         return this.endLongitude;
     }
 
+    public void setStartLocation(Location startLocation){
+        this.startLatitude = startLocation.getLatitude();
+        this.startLongitude = startLocation.getLongitude();
+    }
+
     public void setEndPoint(double endLatitude, double endLongitude){
         this.endLatitude = endLatitude;
         this.endLongitude = endLongitude;

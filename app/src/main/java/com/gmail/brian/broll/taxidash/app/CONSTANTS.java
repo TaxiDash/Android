@@ -32,10 +32,14 @@ public class CONSTANTS {
     public static ArrayList<TaxiDashServer> ALL_SERVERS = new ArrayList<TaxiDashServer>();
 
     public static int MAX_RATING = 5;
-    public static boolean DEBUG = true;
 
     //File locations
     public static String TEMP = null;//Semi-persistent temp directory
     public static String IMAGE_CACHE;
+
+    //Extra Settings
+    //public static boolean DEV_MODE = true;
+    public static boolean DEBUG = true;
+    public static boolean OFFLINE_MODE = false; //TODO
 
 }

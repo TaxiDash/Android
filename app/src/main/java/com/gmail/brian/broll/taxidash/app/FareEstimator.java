@@ -141,6 +141,9 @@ public class FareEstimator extends NavigationActivity implements LocationListene
                 location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             }
 
+            //location has been set. Update the ride info (this location is more precise)
+            ride.setStartLocation(location);
+
             //Set the mMap to this location
             if(location != null){
                 Log.i("LOCATION", "Location is " + location.toString());
