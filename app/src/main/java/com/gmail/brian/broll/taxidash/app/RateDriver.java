@@ -105,6 +105,7 @@ public class RateDriver extends NavigationActivity {
 
     private void submitNotification(int responseCode){
         Log.d("RATING", "SUBMITTING NOTIFICATION with response code " + responseCode);
+        Utils.debugLogging(getApplicationContext(), "Rating " + (rating.isSendingRide() ? "has " : "doesn't have ") + "ride");
 
         if(responseCode == 201) {//Success
 

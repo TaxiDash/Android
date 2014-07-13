@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -59,7 +60,7 @@ public class FareEstimator extends NavigationActivity implements LocationListene
     private Polyline currentRoute = null;
     private Polyline directionsRoute = null;
 
-    private static final int VIEW_BOX_PADDING = 25;
+    private static final int VIEW_BOX_PADDING = 145;
 
     private GoogleMap mMap;
     private Geocoder geocoder;
@@ -270,6 +271,13 @@ public class FareEstimator extends NavigationActivity implements LocationListene
         } else {
             Toast.makeText(getApplicationContext(), "No results found", Toast.LENGTH_SHORT).show();
         }
+
+        //Hide keyboard
+        Context context = getBaseContext();
+        SearchView searchView = (SearchView) findViewById(R.id.location_query);
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        View focus = searchView.findFocus();
+        inputMethodManager.hideSoftInputFromWindow(focus.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     private boolean isRelevant(Address address){
@@ -316,14 +324,12 @@ public class FareEstimator extends NavigationActivity implements LocationListene
         GoogleMap.CancelableCallback callback = new GoogleMap.CancelableCallback() {
             @Override
             public void onFinish() {
-                Toast.makeText(getBaseContext(), "Animation complete", Toast.LENGTH_SHORT)
-                        .show();
+                Utils.debugLogging(getBaseContext(), "Animation complete");
             }
 
             @Override
             public void onCancel() {
-                Toast.makeText(getBaseContext(), "Animation canceled", Toast.LENGTH_SHORT)
-                        .show();
+                Utils.debugLogging(getBaseContext(), "Animation canceled");
             }
         };
 

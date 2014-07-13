@@ -39,7 +39,7 @@ public class CONSTANTS {
 
     //Extra Settings
     //public static boolean DEV_MODE = true;
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
     public static boolean OFFLINE_MODE = false; //TODO
 
 }

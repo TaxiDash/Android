@@ -376,19 +376,20 @@ public class NearbyCabList extends NavigationActivity implements IBeaconConsumer
                         Log.i(BEACON_TAG, "Gonna request info for driver with beacon id: " + beaconId);
                     }
                 }
+
+                //DEMO PURPOSES ONLY
+                if(CONSTANTS.DEMO_MODE){
+                    Log.i(BEACON_TAG, "DEMO MODE ACTIVE");
+                    if (!beaconIds.contains(1)){
+                        beaconIds.add(1);
+                    }
+                }
+
                 Integer[] bIds = new Integer[beaconIds.size()];
                 for(int i = 0; i < bIds.length; i++){
                     bIds[i] = beaconIds.get(i);
                 }
 
-                //DEMO PURPOSES ONLY
-                if(CONSTANTS.DEMO_MODE){
-                    Log.i(BEACON_TAG, "DEMO MODE ACTIVE");
-                    bIds = new Integer[3];
-                    bIds[0] = 37;
-                    bIds[1] = 1661;
-                    bIds[2] = 1662;
-                }
 
                 Log.i(BEACON_TAG, "ABOUT TO REQUEST DRIVER INFO");
 
